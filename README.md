@@ -1,9 +1,9 @@
 # base_project_swift_ui
 It is a SwiftUI base project with:-
   - MVVM Architecture,
-  - with Singleton Pattern,
+  - Singleton Pattern,
   - a custom api dependency with combine,
-  - with api error handling,
+  - api error handling,
   - class Alerts to show alert from anywhere,
   - custom font view builder
   - Shimmer View implemented from article https://medium.com/@Mary_Dort/shimmer-effect-with-swiftui-cbe02946c12f
