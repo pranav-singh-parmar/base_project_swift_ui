@@ -56,7 +56,7 @@ enum ApiStatus {
 }
 
 enum FontEnum {
-    case Light, Regular, Medium, Bold
+    case Light, Regular, Medium, SemiBold, Bold
 }
 
 //MARK: - App Colors
@@ -67,18 +67,8 @@ extension Color {
     static let whiteColor = Color(.whiteColor)
     static let whiteColorForAllModes = Color(.whiteColorForAllModes)
     
-    static let grayColor = Color(.grayColor)
     static let defaultLightGray = Color(.defaultLightGray)
-    static let lightGray = Color(.lightGray)
-    static let placeHolderColor = Color(.placeHolderColor)
     static let shimmerColor = Color(.shimmerColor)
-    static let darkGrayColor = Color(.darkGrayColor)
-    
-    static let primaryColor = Color(.primaryColor)
-    static let greenColor = Color(.greenColor)
-    static let redColor = Color(.redColor)
-    static let orangeColor = Color(.orangeColor)
-    static let lightBlue = Color(.lightBlue)
 }
 
 //MARK: - UIColor
@@ -88,54 +78,52 @@ extension UIColor {
     static let whiteColor = UIColor(named: "whiteColor") ?? UIColor.clear
     static let whiteColorForAllModes = UIColor(named: "whiteColorForAllModes") ?? UIColor.clear
     
-    static let grayColor = UIColor(named: "grayColor") ?? UIColor.clear
     static let defaultLightGray = UIColor(named: "defaultLightGray") ?? UIColor.clear
-    static let lightGray = UIColor(named: "lightGray") ?? UIColor.clear
-    static let placeHolderColor = UIColor(named: "placeHolderColor") ?? UIColor.clear
     static let shimmerColor = UIColor(named: "shimmerColor") ?? UIColor.clear
-    static let darkGrayColor = UIColor(named: "darkGrayColor") ?? UIColor.clear
-    
-    static let primaryColor = UIColor(named: "primaryColor") ?? UIColor.clear
-    static let greenColor = UIColor(named: "greenColor") ?? UIColor.clear
-    static let redColor = UIColor(named: "redColor") ?? UIColor.clear
-    static let orangeColor = UIColor(named: "orangeColor") ?? UIColor.clear
-    static let lightBlue = UIColor(named: "lightBlue") ?? UIColor.clear
 }
 
 //MARK: Font
 extension Font {
-    static func robotoLight(size: CGFloat) -> Font {
-        return Font(UIFont.robotoLight(size: size) as CTFont)
+    static func bitterLight(size: CGFloat) -> Font {
+        return Font(UIFont.bitterLight(size: size) as CTFont)
     }
     
-    static func robotoRegular(size: CGFloat) -> Font {
-        return Font(UIFont.robotoRegular(size: size) as CTFont)
+    static func bitterRegular(size: CGFloat) -> Font {
+        return Font(UIFont.bitterRegular(size: size) as CTFont)
     }
     
-    static func robotoMedium(size: CGFloat) -> Font {
-        return Font(UIFont.robotoMedium(size: size) as CTFont)
+    static func bitterMedium(size: CGFloat) -> Font {
+        return Font(UIFont.bitterMedium(size: size) as CTFont)
     }
     
-    static func robotoBold(size: CGFloat) -> Font {
-        return Font(UIFont.robotoBold(size: size) as CTFont)
+    static func bitterSemiBold(size: CGFloat) -> Font {
+        return Font(UIFont.bitterSemiBold(size: size) as CTFont)
+    }
+    
+    static func bitterBold(size: CGFloat) -> Font {
+        return Font(UIFont.bitterBold(size: size) as CTFont)
     }
 }
 
 //MARK: - UIFont
 extension UIFont {
-    static func robotoLight(size: CGFloat) -> UIFont {
-        return UIFont(name: "Roboto-Light", size: size) ?? .systemFont(ofSize: size)
+    static func bitterLight(size: CGFloat) -> UIFont {
+        return UIFont(name: "Bitter-Light", size: size) ?? .systemFont(ofSize: size)
     }
     
-    static func robotoRegular(size: CGFloat) -> UIFont {
-        return UIFont(name: "Roboto-Regular", size: size) ?? .systemFont(ofSize: size)
+    static func bitterRegular(size: CGFloat) -> UIFont {
+        return UIFont(name: "Bitter-Regular", size: size) ?? .systemFont(ofSize: size)
     }
     
-    static func robotoMedium(size: CGFloat) -> UIFont {
-        return UIFont(name: "Roboto-Medium", size: size) ?? .systemFont(ofSize: size)
+    static func bitterMedium(size: CGFloat) -> UIFont {
+        return UIFont(name: "Bitter-Medium", size: size) ?? .systemFont(ofSize: size)
     }
     
-    static func robotoBold(size: CGFloat) -> UIFont {
-        return UIFont(name: "Roboto-Bold", size: size) ?? .systemFont(ofSize: size)
+    static func bitterSemiBold(size: CGFloat) -> UIFont {
+        return UIFont(name: "Bitter-SemiBold", size: size) ?? .systemFont(ofSize: size)
+    }
+    
+    static func bitterBold(size: CGFloat) -> UIFont {
+        return UIFont(name: "Bitter-Bold", size: size) ?? .systemFont(ofSize: size)
     }
 }

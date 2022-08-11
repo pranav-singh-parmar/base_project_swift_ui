@@ -26,8 +26,12 @@ struct CharacterCell: View {
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(characterModel?.name ?? "")
-                        .font(.headline)
+                        .fontCustom(.SemiBold, size: 20)
+                        .foregroundColor(.blackColor)
+                    
                     Text(characterModel?.portrayed ?? "")
+                        .fontCustom(.Regular, size: 15)
+                        .foregroundColor(.blackColor)
                 }
             }
         }

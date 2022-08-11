@@ -11,6 +11,12 @@
 		151F44F7289D6C2900BC7D2E /* ListFooterProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151F44F6289D6C2900BC7D2E /* ListFooterProgressView.swift */; };
 		151F44F9289D6C9700BC7D2E /* EmptyListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151F44F8289D6C9700BC7D2E /* EmptyListView.swift */; };
 		151F44FB289D6CF400BC7D2E /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151F44FA289D6CF400BC7D2E /* ShimmerView.swift */; };
+		156BB88128A5221A000182DB /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88028A5221A000182DB /* Colors.xcassets */; };
+		156BB88828A52659000182DB /* Bitter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88328A52659000182DB /* Bitter-SemiBold.ttf */; };
+		156BB88928A52659000182DB /* Bitter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88428A52659000182DB /* Bitter-Bold.ttf */; };
+		156BB88A28A52659000182DB /* Bitter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88528A52659000182DB /* Bitter-Medium.ttf */; };
+		156BB88B28A52659000182DB /* Bitter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88628A52659000182DB /* Bitter-Regular.ttf */; };
+		156BB88C28A52659000182DB /* Bitter-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88728A52659000182DB /* Bitter-Light.ttf */; };
 		157A1124289AC7890035636F /* CharactersModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157A1123289AC7890035636F /* CharactersModel.swift */; };
 		1581A01B2898263100CD1DF0 /* base_projectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581A01A2898263100CD1DF0 /* base_projectApp.swift */; };
 		1581A01D2898263100CD1DF0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581A01C2898263100CD1DF0 /* ContentView.swift */; };
@@ -54,6 +60,13 @@
 		151F44F6289D6C2900BC7D2E /* ListFooterProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFooterProgressView.swift; sourceTree = "<group>"; };
 		151F44F8289D6C9700BC7D2E /* EmptyListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyListView.swift; sourceTree = "<group>"; };
 		151F44FA289D6CF400BC7D2E /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
+		156BB88028A5221A000182DB /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
+		156BB88328A52659000182DB /* Bitter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-SemiBold.ttf"; sourceTree = "<group>"; };
+		156BB88428A52659000182DB /* Bitter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-Bold.ttf"; sourceTree = "<group>"; };
+		156BB88528A52659000182DB /* Bitter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-Medium.ttf"; sourceTree = "<group>"; };
+		156BB88628A52659000182DB /* Bitter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-Regular.ttf"; sourceTree = "<group>"; };
+		156BB88728A52659000182DB /* Bitter-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-Light.ttf"; sourceTree = "<group>"; };
+		156BB88D28A52686000182DB /* base-project-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "base-project-Info.plist"; sourceTree = SOURCE_ROOT; };
 		157A1123289AC7890035636F /* CharactersModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersModel.swift; sourceTree = "<group>"; };
 		1581A0172898263100CD1DF0 /* base_project.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = base_project.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1581A01A2898263100CD1DF0 /* base_projectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = base_projectApp.swift; sourceTree = "<group>"; };
@@ -114,6 +127,18 @@
 			path = Widgets;
 			sourceTree = "<group>";
 		};
+		156BB88228A5262D000182DB /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				156BB88428A52659000182DB /* Bitter-Bold.ttf */,
+				156BB88728A52659000182DB /* Bitter-Light.ttf */,
+				156BB88528A52659000182DB /* Bitter-Medium.ttf */,
+				156BB88628A52659000182DB /* Bitter-Regular.ttf */,
+				156BB88328A52659000182DB /* Bitter-SemiBold.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		1581A00E2898263100CD1DF0 = {
 			isa = PBXGroup;
 			children = (
@@ -137,6 +162,7 @@
 		1581A0192898263100CD1DF0 /* base_project */ = {
 			isa = PBXGroup;
 			children = (
+				156BB88D28A52686000182DB /* base-project-Info.plist */,
 				1581A0442898264400CD1DF0 /* ApiServices */,
 				1581A05428982A6100CD1DF0 /* App */,
 				1581A05B2898311500CD1DF0 /* Assets */,
@@ -208,7 +234,9 @@
 		1581A05B2898311500CD1DF0 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				156BB88228A5262D000182DB /* Fonts */,
 				1581A01E2898263300CD1DF0 /* Assets.xcassets */,
+				156BB88028A5221A000182DB /* Colors.xcassets */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -359,7 +387,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				156BB88128A5221A000182DB /* Colors.xcassets in Resources */,
+				156BB88A28A52659000182DB /* Bitter-Medium.ttf in Resources */,
+				156BB88928A52659000182DB /* Bitter-Bold.ttf in Resources */,
+				156BB88C28A52659000182DB /* Bitter-Light.ttf in Resources */,
+				156BB88828A52659000182DB /* Bitter-SemiBold.ttf in Resources */,
 				1581A0222898263300CD1DF0 /* Preview Assets.xcassets in Resources */,
+				156BB88B28A52659000182DB /* Bitter-Regular.ttf in Resources */,
 				1581A01F2898263300CD1DF0 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -563,6 +597,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"base_project/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "base-project-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -592,6 +627,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"base_project/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "base-project-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

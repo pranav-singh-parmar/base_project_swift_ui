@@ -19,7 +19,7 @@ struct CharactersListScreen: View {
         ZStack {
             let count = charactersVM.characters.count
             if charactersVM.getCharactersAS == ApiStatus.ApiHit && count == 0 {
-                Text("a")//EmptyListView(text: "No Passes Found")
+                EmptyListView(text: "No Characters Found")
             } else if charactersVM.getCharactersAS == ApiStatus.ApiHit || count != 0 {
                 ScrollViewReader { reader in
                     List {
@@ -51,19 +51,20 @@ struct CharactersListScreen: View {
                 }
             } else {
                 ScrollView {
-                    ForEach(0...5, id: \.self) { index in
+                    ForEach(0...14, id: \.self) { index in
                         ShimmerView()
-                            .frame(height: (UIScreen.main.bounds.size.height / 4))
+                            .frame(height: (AppConstants.DeviceDimensions.width * 0.15))
                             .padding(.horizontal, padding / 2)
                             .padding(.bottom, padding)
                             .if(index == 0) { $0.padding(.top, padding) }
                     }.disabled(true)
                 }
             }
-        }.onAppear {
-            reader?.scrollTo(0)
-            charactersVM.getCharacters()
-        }
+        }.navigationBarTitle("Breaking Bad Cast")
+            .onAppear {
+                reader?.scrollTo(0)
+                charactersVM.getCharacters()
+            }
     }
 }
 

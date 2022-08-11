@@ -47,13 +47,15 @@ extension Text {
     func fontCustom(_ font: FontEnum, size: CGFloat) -> Text {
         switch font {
         case .Light:
-            return self.font(.robotoLight(size: size))
+            return self.font(.bitterLight(size: size))
         case .Regular:
-            return self.font(.robotoRegular(size: size))
+            return self.font(.bitterRegular(size: size))
         case .Medium:
-            return self.font(.robotoMedium(size: size))
+            return self.font(.bitterMedium(size: size))
+        case .SemiBold:
+            return self.font(.bitterMedium(size: size))
         case .Bold:
-            return self.font(.robotoBold(size: size))
+            return self.font(.bitterBold(size: size))
         }
     }
 }

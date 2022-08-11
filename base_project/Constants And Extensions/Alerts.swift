@@ -13,8 +13,8 @@ class Alerts {
     private let attributedTitleKey = "attributedTitle"
     private let attributedMessageKey = "attributedMessage"
     
-    private let titleAttributes = [NSAttributedString.Key.font: UIFont.robotoMedium(size: 17), NSAttributedString.Key.foregroundColor: UIColor.blackColor]
-    private let messageAttributes = [NSAttributedString.Key.font: UIFont.robotoRegular(size: 14), NSAttributedString.Key.foregroundColor: UIColor.blackColor]
+    private let titleAttributes = [NSAttributedString.Key.font: UIFont.bitterMedium(size: 17), NSAttributedString.Key.foregroundColor: UIColor.blackColor]
+    private let messageAttributes = [NSAttributedString.Key.font: UIFont.bitterRegular(size: 14), NSAttributedString.Key.foregroundColor: UIColor.blackColor]
     
     func errorAlert(title: String = "Error!", message: String){
         let alert = UIAlertController(title: "", message: "", preferredStyle: UIAlertController.Style.alert)

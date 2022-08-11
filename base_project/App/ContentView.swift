@@ -10,7 +10,9 @@ import SwiftUI
 struct ContentView: View {
     
     var body: some View {
-        CharactersListScreen()
+        NavigationView {
+            CharactersListScreen()
+        }
     }
 }
 

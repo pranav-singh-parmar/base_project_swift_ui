@@ -25,14 +25,9 @@ struct EmptyListView: View {
             HStack {
                 Spacer()
                 VStack(spacing: 20) {
-                    Image(imageName)
-                        // .resizable()
-                        // .aspectRatio(contentMode: .fit)
-                        // .frame(width: dimensions, height: dimensions, alignment: .center)
-                    
                     Text(text)
                         .fontCustom(.Regular, size: 18)
-                        .foregroundColor(.darkGrayColor)
+                        .foregroundColor(.blackColor)
                 }
                 Spacer()
             }
