@@ -41,13 +41,13 @@ class CharactersViewModel: ViewModel {
         cancellable = Singleton.sharedInstance.apiServices.hitApi(httpMethod: .GET, urlString: AppConstants.ApiEndPoints.characters, isAuthApi: false, parameterEncoding: .QueryParameters, params: params, decodingStruct: Characters.self) { [weak self] in
                 self?.getCharacters(clearList: clearList)
             }
-            .sink{ completion in
+            .sink{ [weak self] completion in
                 switch completion {
                     case .finished:
-                    self.getCharactersAS = .ApiHit
+                    self?.getCharactersAS = .ApiHit
                     break
                     case .failure(_):
-                    self.getCharactersAS = .ApiHitWithError
+                    self?.getCharactersAS = .ApiHitWithError
                     break
                 }
             } receiveValue: { [weak self] response in

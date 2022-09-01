@@ -27,9 +27,6 @@ struct base_projectApp: App {
                         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))
                 }
             }.animation(Animation.easeIn, value: appEnvironmentObject.changeContentView)
-                .onAppear {
-                    network.checkConnection()
-                }
         }
     }
 }

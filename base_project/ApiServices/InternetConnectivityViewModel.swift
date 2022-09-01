@@ -8,12 +8,16 @@
 import Foundation
 import Network
 
-class InternetConnectivityViewModel: ObservableObject {
+class InternetConnectivityViewModel {
     
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "InternetConnectivityMonitor")
     
-    func checkConnection() {
+    init() {
+        checkConnection()
+    }
+    
+    private func checkConnection() {
         monitor.pathUpdateHandler = { path in
             DispatchQueue.main.async {
                 if path.status == .satisfied {

@@ -23,7 +23,9 @@ class ApiServices {
         }
         if let component = urlComponents {
             //https://stackoverflow.com/questions/27723912/swift-get-request-with-parameters
-            //this code is added so that any space in the value can be handled
+            //this code is added because some servers interpret '+' as space becuase of x-www-form-urlencoded specification
+            //so we have to percent escape it manually because URLComponents does not perform it
+            //space is percent encoded as %20 and '+' is encoded as "%2B"
             urlComponents?.percentEncodedQuery = component.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         }
         return urlComponents
@@ -139,7 +141,7 @@ class ApiServices {
         return urlRequest
     }
     
-    func hitApi<T: Decodable>(httpMethod: HTTPMethod, urlString: String, isAuthApi: Bool = false, parameterEncoding: ParameterEncoding = .None, params : [String: Any]? = nil, imageModel: [ImageModel]? = nil, returnRequired: JsonStructEnum = JsonStructEnum.OnlyModel, decodingStruct: T.Type, outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
+    func hitApi<T: Decodable>(httpMethod: HTTPMethod, urlString: String, isAuthApi: Bool = false, parameterEncoding: ParameterEncoding = .None, params : [String: Any]? = nil, imageModel: [ImageModel]? = nil, decodingStruct: T.Type, outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
         
         if Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet {
             
@@ -152,21 +154,21 @@ class ApiServices {
                     //.decode(type: T.self, decoder: Singleton.sharedInstance.jsonDecoder)
                     .flatMap { data, response -> AnyPublisher<T, APIError> in
                         guard let response = response as? HTTPURLResponse else{
-                            return Fail(error: APIError.InvalidHTTPURLResponse).eraseToAnyPublisher()
+                            return self.returnApiError(.InvalidHTTPURLResponse, inUrl: urlString)
                         }
                         let jsonConvert = try? JSONSerialization.jsonObject(with: data, options: [])
                         let json = jsonConvert as AnyObject
                         
                         switch response.statusCode {
                         case 100...199:
-                            return Fail(error: APIError.InformationalError(response.statusCode)).eraseToAnyPublisher()
+                            return self.returnApiError(.InformationalError(response.statusCode), inUrl: urlString)
                         case 200...299:
                             //let model = try JSONDecoder().decode(decodingStruct.self, from: data)
                             return Just(data).decode(type: decodingStruct.self, decoder: Singleton.sharedInstance.jsonDecoder)
                                 .mapError{_ in APIError.DecodingError}
                                 .eraseToAnyPublisher()
                         case 300...399:
-                            return Fail(error: APIError.RedirectionalError(response.statusCode)).eraseToAnyPublisher()
+                            return self.returnApiError(.RedirectionalError(response.statusCode), inUrl: urlString)
                         case 400...499:
                             let clientErrorEnum = ClientErrorsEnum(rawValue: response.statusCode) ?? .Other
                             switch clientErrorEnum {
@@ -190,15 +192,15 @@ class ApiServices {
                                     Singleton.sharedInstance.alerts.errorAlert(message: "Server Error")
                                 }
                             }
-                            return Fail(error: APIError.ClientError(clientErrorEnum)).eraseToAnyPublisher()
+                            return self.returnApiError(.ClientError(clientErrorEnum), inUrl: urlString)
                         case 500...599:
-                            return Fail(error: APIError.ServerError(response.statusCode)).eraseToAnyPublisher()
+                            return self.returnApiError(.ServerError(response.statusCode), inUrl: urlString)
                         default:
                             return Fail(error: APIError.Unknown(response.statusCode)).eraseToAnyPublisher()
                         }
                     }.eraseToAnyPublisher()
             } else {
-                return Fail(error: APIError.UrlNotValid).eraseToAnyPublisher()
+                return returnApiError(APIError.UrlNotValid, inUrl: urlString)
             }
         } else {
             let monitor = NWPathMonitor()
@@ -212,41 +214,12 @@ class ApiServices {
                 }
             }
             monitor.start(queue: queue)
-            return Fail(error: APIError.InternetNotConnected).eraseToAnyPublisher()
+            return returnApiError(APIError.InternetNotConnected, inUrl: urlString)
         }
     }
+    
+    private func returnApiError<T: Decodable>(_ apiError: APIError, inUrl urlString: String) -> AnyPublisher<T, APIError> {
+        print("in api \(urlString) \(apiError)")
+        return Fail(error: apiError).eraseToAnyPublisher()
+    }
 }
-
-//MARK: - ImageModel
-struct ImageModel: Codable{
-    let file: Data
-    let fileKeyName: String
-    let fileName: String
-    // mime type is file type(image, video etc.)
-    let mimeType: String
-}
-
-enum APIError: Error {
-    case InternetNotConnected
-    case UrlNotValid
-    case MapError
-    case InvalidHTTPURLResponse
-    case InformationalError(Int)
-    case DecodingError
-    case RedirectionalError(Int)
-    case ClientError(ClientErrorsEnum)
-    case ServerError(Int)
-    case Unknown(Int)
-}
-
-enum ClientErrorsEnum: Int {
-    case BadRequest = 400, Unauthorized = 401, PaymentRequired = 402, Forbidden = 403, Required = 404, NotFound = 405, MethodNotAllowed = 406, URITooLong = 414, Other
-}
-
-//https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses
-//Informational responses (100-199)
-//Successful responses (200–299)
-//Redirection messages (300–399)
-//Client error responses (400–499)
-//Server error responses (500–599)
-
