@@ -34,7 +34,6 @@ extension UIApplication: UIGestureRecognizerDelegate {
 
 //MARK: - View
 extension View {
-    
     @ViewBuilder
     func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
         if condition { transform(self) }
@@ -122,6 +121,16 @@ extension Color {
         
         let hexString = String.init(format: "#%02lX%02lX%02lX", lroundf(Float(r * 255)), lroundf(Float(g * 255)), lroundf(Float(b * 255)))
         return hexString
+    }
+}
+
+//MARK: - Set<AnyCancellable>
+typealias AnyCancellablesSet = Set<AnyCancellable>
+
+extension AnyCancellablesSet {
+    mutating func cancelAll() {
+        forEach { $0.cancel() }
+        removeAll()
     }
 }
 

@@ -10,7 +10,7 @@ import Combine
 
 class CharactersViewModel: ViewModel {
     
-    private var cancellable: AnyCancellable? = nil
+    private var cancellable: Set<AnyCancellable> = []
     
     @Published private(set) var characters: [Character] = []
     
@@ -38,7 +38,7 @@ class CharactersViewModel: ViewModel {
         
         let params = ["limit": 10, "offset": currentLength] as [String: Any]
         
-        cancellable = Singleton.sharedInstance.apiServices.hitApi(httpMethod: .GET, urlString: AppConstants.ApiEndPoints.characters, isAuthApi: false, parameterEncoding: .QueryParameters, params: params, decodingStruct: Characters.self) { [weak self] in
+        Singleton.sharedInstance.apiServices.hitApi(httpMethod: .GET, urlString: AppConstants.ApiEndPoints.characters, isAuthApi: false, parameterEncoding: .QueryParameters, params: params, decodingStruct: Characters.self) { [weak self] in
                 self?.getCharacters(clearList: clearList)
             }
             .sink{ [weak self] completion in
@@ -55,10 +55,10 @@ class CharactersViewModel: ViewModel {
                 self?.total = 30
                 self?.characters.append(contentsOf: response)
                 self?.currentLength = self?.characters.count ?? 0
-            }
+            }.store(in: &cancellable)
     }
     
     func clearAllCancellables() {
-        cancellable?.cancel()
+        cancellable.cancelAll()
     }
 }
