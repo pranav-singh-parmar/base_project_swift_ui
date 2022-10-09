@@ -9,10 +9,6 @@ import Foundation
 import Network
 import Combine
 
-protocol ViewModel: ObservableObject {
-    func clearAllCancellables()
-}
-
 class ApiServices {
     
     func getQueryItems(urlString: String, params: [String: Any]) -> URLComponents? {
@@ -150,25 +146,31 @@ class ApiServices {
                     .shared
                     .dataTaskPublisher(for: urlRequest)
                     .receive(on: DispatchQueue.main)
-                    .mapError{_ in APIError.MapError}
+                    .mapError { _ in
+                        self.printApiError(.MapError, inUrl: urlString)
+                        return APIError.MapError
+                    }
                     //.decode(type: T.self, decoder: Singleton.sharedInstance.jsonDecoder)
                     .flatMap { data, response -> AnyPublisher<T, APIError> in
                         guard let response = response as? HTTPURLResponse else{
-                            return self.returnApiError(.InvalidHTTPURLResponse, inUrl: urlString)
+                            return self.getApiErrorPublisher(.InvalidHTTPURLResponse, inUrl: urlString)
                         }
                         let jsonConvert = try? JSONSerialization.jsonObject(with: data, options: [])
                         let json = jsonConvert as AnyObject
                         
                         switch response.statusCode {
                         case 100...199:
-                            return self.returnApiError(.InformationalError(response.statusCode), inUrl: urlString)
+                            return self.getApiErrorPublisher(.InformationalError(response.statusCode), inUrl: urlString)
                         case 200...299:
                             //let model = try JSONDecoder().decode(decodingStruct.self, from: data)
                             return Just(data).decode(type: decodingStruct.self, decoder: Singleton.sharedInstance.jsonDecoder)
-                                .mapError{_ in APIError.DecodingError}
+                                .mapError { _ in
+                                    self.printApiError(.DecodingError, inUrl: urlString)
+                                    return APIError.DecodingError
+                                }
                                 .eraseToAnyPublisher()
                         case 300...399:
-                            return self.returnApiError(.RedirectionalError(response.statusCode), inUrl: urlString)
+                            return self.getApiErrorPublisher(.RedirectionalError(response.statusCode), inUrl: urlString)
                         case 400...499:
                             let clientErrorEnum = ClientErrorsEnum(rawValue: response.statusCode) ?? .Other
                             switch clientErrorEnum {
@@ -192,15 +194,15 @@ class ApiServices {
                                     Singleton.sharedInstance.alerts.errorAlert(message: "Server Error")
                                 }
                             }
-                            return self.returnApiError(.ClientError(clientErrorEnum), inUrl: urlString)
+                            return self.getApiErrorPublisher(.ClientError(clientErrorEnum), inUrl: urlString)
                         case 500...599:
-                            return self.returnApiError(.ServerError(response.statusCode), inUrl: urlString)
+                            return self.getApiErrorPublisher(.ServerError(response.statusCode), inUrl: urlString)
                         default:
                             return Fail(error: APIError.Unknown(response.statusCode)).eraseToAnyPublisher()
                         }
                     }.eraseToAnyPublisher()
             } else {
-                return returnApiError(APIError.UrlNotValid, inUrl: urlString)
+                return getApiErrorPublisher(.UrlNotValid, inUrl: urlString)
             }
         } else {
             let monitor = NWPathMonitor()
@@ -214,12 +216,16 @@ class ApiServices {
                 }
             }
             monitor.start(queue: queue)
-            return returnApiError(APIError.InternetNotConnected, inUrl: urlString)
+            return getApiErrorPublisher(.InternetNotConnected, inUrl: urlString)
         }
     }
     
-    private func returnApiError<T: Decodable>(_ apiError: APIError, inUrl urlString: String) -> AnyPublisher<T, APIError> {
-        print("in api \(urlString) \(apiError)")
+    private func getApiErrorPublisher<T: Decodable>(_ apiError: APIError, inUrl urlString: String) -> AnyPublisher<T, APIError> {
+        printApiError(apiError, inUrl: urlString)
         return Fail(error: apiError).eraseToAnyPublisher()
+    }
+    
+    private func printApiError(_ apiError: APIError, inUrl urlString: String) {
+        print("in api \(urlString) \(apiError)")
     }
 }

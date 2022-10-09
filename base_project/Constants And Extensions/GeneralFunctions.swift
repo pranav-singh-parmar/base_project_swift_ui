@@ -13,18 +13,22 @@ import SwiftUI
 class GeneralFunctions {
     
     func getTopWindow() -> UIWindow? {
-        return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow
+        if #available(iOS 15, *) {
+            return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow
+        } else {
+            return UIApplication.shared.windows.first
+        }
     }
     
-    func getTopViewController(_ base: UIViewController? = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow?.rootViewController) -> UIViewController? {
-        switch base {
-        case let controller as UINavigationController:
-            return getTopViewController(controller.visibleViewController)
-        case let controller as UITabBarController:
-            return controller.selectedViewController.flatMap { getTopViewController($0) } ?? base
-        default:
-            return base?.presentedViewController.flatMap { getTopViewController($0) } ?? base
+    func getTopViewController() -> UIViewController? {
+        let rootViewController = getTopWindow()?.rootViewController
+        if let navigationController = rootViewController as? UINavigationController {
+            return navigationController.viewControllers.first
         }
+        if let tabBarController = rootViewController as? UITabBarController {
+            return tabBarController.selectedViewController
+        }
+        return nil
     }
     
     func getStatusBarHeight() -> CGFloat {

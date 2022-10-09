@@ -8,7 +8,7 @@
 import Foundation
 import Network
 
-class InternetConnectivityViewModel {
+class InternetConnectivityViewModel: ObservableObject {
     
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "InternetConnectivityMonitor")

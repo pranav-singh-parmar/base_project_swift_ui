@@ -18,10 +18,10 @@ struct CharacterCell: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
-                NetworkImage(urlString: characterModel?.img ?? "",
-                             contentMode: .fill,
-                             width: AppConstants.DeviceDimensions.width * 0.15,
-                             height: AppConstants.DeviceDimensions.width * 0.15)
+                KingfisherImageView(urlString: characterModel?.img ?? "",
+                                    contentMode: .fill,
+                                    width: AppConstants.DeviceDimensions.width * 0.15,
+                                    height: AppConstants.DeviceDimensions.width * 0.15)
                 .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 2) {

@@ -31,7 +31,7 @@ class Alerts {
         vc?.present(alert, animated: true, completion: nil)
     }
     
-    func alertWithTwoButtonsAndActionOnSecond(title: String, message: String, firstButtonTitle: String, secondButtonTitle: String, secondButtonAction: @escaping ()-> Void){
+    func alertWith(title: String, message: String, firstButtonTitle firstTitle: String, firstButtonStyle: UIAlertAction.Style, firstButtonAction: (() -> Void)? = nil, andSecondButtonTitle secondButtonTitle: String, secondButtonStyle: UIAlertAction.Style, secondButtonAction: (()-> Void)? = nil) {
         let alert = UIAlertController(title: "", message: "", preferredStyle: UIAlertController.Style.alert)
         
         let titleString = NSAttributedString(string: title, attributes: titleAttributes)
@@ -40,10 +40,12 @@ class Alerts {
         let messageString = NSAttributedString(string: message, attributes: messageAttributes)
         alert.setValue(messageString, forKey: attributedMessageKey)
         
-        alert.addAction(UIAlertAction(title: firstButtonTitle, style: UIAlertAction.Style.default, handler: nil))
+        alert.addAction(UIAlertAction(title: firstTitle, style: firstButtonStyle, handler: firstButtonAction == nil ? nil : { _ in
+            firstButtonAction!()
+        }))
         
-        alert.addAction(UIAlertAction(title: secondButtonTitle, style: UIAlertAction.Style.default, handler: { _ in
-            secondButtonAction()
+        alert.addAction(UIAlertAction(title: secondButtonTitle, style: secondButtonStyle, handler: secondButtonAction == nil ? nil : { _ in
+            secondButtonAction!()
         }))
         
         let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()

@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class CharactersViewModel: ViewModel {
+class CharactersViewModel: ObservableObject {
     
     private var cancellable: Set<AnyCancellable> = []
     
@@ -56,9 +56,5 @@ class CharactersViewModel: ViewModel {
                 self?.characters.append(contentsOf: response)
                 self?.currentLength = self?.characters.count ?? 0
             }.store(in: &cancellable)
-    }
-    
-    func clearAllCancellables() {
-        cancellable.cancelAll()
     }
 }
