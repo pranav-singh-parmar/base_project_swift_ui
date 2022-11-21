@@ -36,9 +36,9 @@ class CharactersViewModel: ObservableObject {
             characters.removeAll()
         }
         
-        let params = ["limit": 10, "offset": currentLength] as [String: Any]
+        let params = ["limit": 10, "offset": currentLength] as JSONKeyPair
         
-        Singleton.sharedInstance.apiServices.hitApi(httpMethod: .GET, urlString: AppConstants.ApiEndPoints.characters, isAuthApi: false, parameterEncoding: .QueryParameters, params: params, decodingStruct: Characters.self) { [weak self] in
+        Singleton.sharedInstance.apiServices.hitApi(withHttpMethod: .GET, endpoint: AppEndpoints.characters, parameterEncoding: .QueryParameters, parameters: params, decodingStruct: Characters.self) { [weak self] in
                 self?.getCharacters(clearList: clearList)
             }
             .sink{ [weak self] completion in
@@ -51,7 +51,6 @@ class CharactersViewModel: ObservableObject {
                     break
                 }
             } receiveValue: { [weak self] response in
-                print("here in value \(response.count)")
                 self?.total = 30
                 self?.characters.append(contentsOf: response)
                 self?.currentLength = self?.characters.count ?? 0

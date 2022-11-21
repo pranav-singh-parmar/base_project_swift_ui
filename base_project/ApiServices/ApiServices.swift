@@ -11,10 +11,10 @@ import Combine
 
 class ApiServices {
     
-    func getQueryItems(urlString: String, params: [String: Any]) -> URLComponents? {
+    func getQueryItems(forURLString urlString: String, andParamters parameters: JSONKeyPair) -> URLComponents? {
         var urlComponents = URLComponents(string: urlString)
         urlComponents?.queryItems = []
-        for (keyName, value) in params {
+        for (keyName, value) in parameters {
             urlComponents?.queryItems?.append(URLQueryItem(name: keyName, value: "\(value)"))
         }
         if let component = urlComponents {
@@ -27,7 +27,7 @@ class ApiServices {
         return urlComponents
     }
     
-    func getURLRequest(httpMethod: HTTPMethod, urlString: String, isAuthApi: Bool, parameterEncoding: ParameterEncoding, params: [String: Any]?, imageModel: [ImageModel]?) -> URLRequest? {
+    func getURLRequest(withHTTPMethod httpMethod: HTTPMethod, urlString: String, includesAppAuth: Bool, headers: JSONKeyPair?, parameterEncoding: ParameterEncoding, parameters: JSONKeyPair?, fileModel: [FileModel]?) -> URLRequest? {
         
         var urlRequest: URLRequest?
         
@@ -37,20 +37,20 @@ class ApiServices {
                 urlRequest = URLRequest(url: url)
             }
         case .QueryParameters:
-            if let params = params {
-                let urlComponents = getQueryItems(urlString: urlString, params: params)
+            if let parameters {
+                let urlComponents = getQueryItems(forURLString: urlString, andParamters: parameters)
                 if let url = urlComponents?.url {
                     urlRequest = URLRequest(url: url)
                 }
             } else if let url = URL(string: urlString) {
                 urlRequest = URLRequest(url: url)
             }
-        case .JsonBody:
+        case .JSONBody:
             if let url = URL(string: urlString) {
                 urlRequest = URLRequest(url: url)
-                if let params = params {
+                if let parameters {
                     do {
-                        let jsonData = try JSONSerialization.data(withJSONObject: params, options: .prettyPrinted)
+                        let jsonData = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
                         urlRequest?.httpBody = jsonData
                         urlRequest?.addValue("application/json", forHTTPHeaderField: "Content-Type")
                     } catch {
@@ -61,8 +61,8 @@ class ApiServices {
         case .URLFormEncoded:
             if let url = URL(string: urlString) {
                 urlRequest = URLRequest(url: url)
-                if let params = params {
-                    let urlComponents = getQueryItems(urlString: urlString, params: params)
+                if let parameters {
+                    let urlComponents = getQueryItems(forURLString: urlString, andParamters: parameters)
                     let formEncodedString = urlComponents?.percentEncodedQuery
                     if let formEncodedData = formEncodedString?.data(using: .utf8) {
                         urlRequest?.httpBody = formEncodedData
@@ -84,9 +84,9 @@ class ApiServices {
                 
                 var body = Data()
                 
-                if let params = params {
-                    for (key, value) in params {
-                        if let params = value as? [String: Any], let data = try? JSONSerialization.data(withJSONObject: params, options: .prettyPrinted) {
+                if let parameters {
+                    parameters.forEach { key, value in
+                        if let params = value as? JSONKeyPair, let data = try? JSONSerialization.data(withJSONObject: params, options: .prettyPrinted) {
                             body.appendString("--\(boundary + lineBreak)")
                             body.appendString("Content-Disposition: form-data; name=\"\(key)\"\(lineBreak + lineBreak)")
                             //body.appendString("Content-Type: application/json;charset=utf-8\(lineBreak + lineBreak)")
@@ -102,12 +102,12 @@ class ApiServices {
                     }
                 }
                 
-                if let imageModel = imageModel {
-                    for image in imageModel {
+                if let fileModel {
+                    for fileModel in fileModel {
                         body.appendString("--\(boundary + lineBreak)")
-                        body.appendString("Content-Disposition: form-data; name=\"\(image.fileKeyName)\"; filename=\"\(image.fileName)\"\(lineBreak)")
-                        body.appendString("Content-Type: \(image.mimeType + lineBreak + lineBreak)")
-                        body.append(image.file)
+                        body.appendString("Content-Disposition: form-data; name=\"\(fileModel.fileKeyName)\"; filename=\"\(fileModel.fileName)\"\(lineBreak)")
+                        body.appendString("Content-Type: \(fileModel.mimeType + lineBreak + lineBreak)")
+                        body.append(fileModel.file)
                         body.appendString(lineBreak)
                     }
                 }
@@ -127,21 +127,28 @@ class ApiServices {
         urlRequest?.addValue("application/json", forHTTPHeaderField: "Accept")
         //urlRequest?.addValue("token", forHTTPHeaderField: "Authorization")
         
+        if let headers {
+            headers.forEach { key, value in
+                urlRequest?.addValue(key, forHTTPHeaderField: "\(value)")
+            }
+        }
+        
         print("url", urlRequest?.url?.absoluteString ?? "url not set")
         print("http method is", urlRequest?.httpMethod ?? "http method not assigned")
         print("headers are", urlRequest?.allHTTPHeaderFields ?? [:])
         print("paramenterEncoding is", parameterEncoding)
         print("http body data", urlRequest?.httpBody ?? Data())
-        print("params are", params ?? [:])
+        print("parameters are", parameters ?? [:])
         
         return urlRequest
     }
     
-    func hitApi<T: Decodable>(httpMethod: HTTPMethod, urlString: String, isAuthApi: Bool = false, parameterEncoding: ParameterEncoding = .None, params : [String: Any]? = nil, imageModel: [ImageModel]? = nil, decodingStruct: T.Type, outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
+    func hitApi<T: Decodable>(withHttpMethod httpMethod: HTTPMethod, endpoint: EndpointsProtocol, hasAppAuthToken: Bool = false, headers: JSONKeyPair? = nil, parameterEncoding: ParameterEncoding = .None, parameters: JSONKeyPair? = nil, fileModel: [FileModel]? = nil, decodingStruct: T.Type, outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
         
+        let urlString = endpoint.getURLString()
         if Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet {
             
-            if let urlRequest = getURLRequest(httpMethod: httpMethod, urlString: urlString, isAuthApi: isAuthApi, parameterEncoding: parameterEncoding, params: params, imageModel: imageModel) {
+            if let urlRequest = getURLRequest(withHTTPMethod: httpMethod, urlString: urlString, includesAppAuth: hasAppAuthToken, headers: headers, parameterEncoding: parameterEncoding, parameters: parameters, fileModel: fileModel) {
                 return URLSession
                     .shared
                     .dataTaskPublisher(for: urlRequest)

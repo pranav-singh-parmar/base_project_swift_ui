@@ -12,6 +12,7 @@
 		151F44F7289D6C2900BC7D2E /* ListFooterProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151F44F6289D6C2900BC7D2E /* ListFooterProgressView.swift */; };
 		151F44F9289D6C9700BC7D2E /* EmptyListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151F44F8289D6C9700BC7D2E /* EmptyListView.swift */; };
 		151F44FB289D6CF400BC7D2E /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 151F44FA289D6CF400BC7D2E /* ShimmerView.swift */; };
+		1553B0962926861A0079E9EB /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1553B0952926861A0079E9EB /* Endpoints.swift */; };
 		156BB88128A5221A000182DB /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88028A5221A000182DB /* Colors.xcassets */; };
 		156BB88828A52659000182DB /* Bitter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88328A52659000182DB /* Bitter-SemiBold.ttf */; };
 		156BB88928A52659000182DB /* Bitter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88428A52659000182DB /* Bitter-Bold.ttf */; };
@@ -68,6 +69,7 @@
 		151F44F6289D6C2900BC7D2E /* ListFooterProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFooterProgressView.swift; sourceTree = "<group>"; };
 		151F44F8289D6C9700BC7D2E /* EmptyListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyListView.swift; sourceTree = "<group>"; };
 		151F44FA289D6CF400BC7D2E /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
+		1553B0952926861A0079E9EB /* Endpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoints.swift; sourceTree = "<group>"; };
 		156BB88028A5221A000182DB /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		156BB88328A52659000182DB /* Bitter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-SemiBold.ttf"; sourceTree = "<group>"; };
 		156BB88428A52659000182DB /* Bitter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-Bold.ttf"; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 				15C81439289991E30029EA26 /* Models */,
 				15C81436289972510029EA26 /* View Models */,
 				1581A0452898266800CD1DF0 /* ApiServices.swift */,
+				1553B0952926861A0079E9EB /* Endpoints.swift */,
 				1581A0472898269F00CD1DF0 /* InternetConnectivityViewModel.swift */,
 			);
 			path = ApiServices;
@@ -591,6 +594,7 @@
 				15C81435289972190029EA26 /* CharactersListScreen.swift in Sources */,
 				1518539E28F3067300D0681E /* KingfisherImageView.swift in Sources */,
 				151F44F5289D646800BC7D2E /* NetworkImage.swift in Sources */,
+				1553B0962926861A0079E9EB /* Endpoints.swift in Sources */,
 				1581A04F2898274A00CD1DF0 /* Extensions.swift in Sources */,
 				1581A04B289826F700CD1DF0 /* Alerts.swift in Sources */,
 				151F44F7289D6C2900BC7D2E /* ListFooterProgressView.swift in Sources */,

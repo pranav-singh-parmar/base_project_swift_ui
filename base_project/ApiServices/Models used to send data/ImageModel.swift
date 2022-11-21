@@ -8,7 +8,7 @@
 import Foundation
 
 //MARK: - ImageModel
-struct ImageModel: Codable{
+struct FileModel: Codable{
     let file: Data
     let fileKeyName: String
     let fileName: String

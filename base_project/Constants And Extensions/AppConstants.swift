@@ -44,7 +44,7 @@ enum HTTPMethod: String {
 }
 
 enum ParameterEncoding {
-    case None, QueryParameters, JsonBody, URLFormEncoded, FormData
+    case None, QueryParameters, JSONBody, URLFormEncoded, FormData
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses

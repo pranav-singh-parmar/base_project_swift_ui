@@ -10,6 +10,8 @@ import UIKit
 import CoreTelephony
 import SwiftUI
 
+typealias JSONKeyPair = [String: Any]
+
 class GeneralFunctions {
     
     func getTopWindow() -> UIWindow? {
@@ -53,7 +55,7 @@ class GeneralFunctions {
         return nil
     }
     
-    func structToJson<T: Encodable>(_ model: T) -> Any? {
+    func structToJSON<T: Encodable>(_ model: T) -> Any? {
         do {
             let jsonData = try JSONEncoder().encode(model)
             let json = try JSONSerialization.jsonObject(with: jsonData, options: [])
@@ -62,16 +64,16 @@ class GeneralFunctions {
         return nil
     }
     
-    func structToParameters<T: Encodable>(_ model: T) -> [String: Any]? {
-        if let json = structToJson(model){
-            if let parameter = json as? [String: Any] {
+    func structToParameters<T: Encodable>(_ model: T) -> JSONKeyPair? {
+        if let json = structToJSON(model){
+            if let parameter = json as? JSONKeyPair {
                 return parameter
             }
         }
         return nil
     }
     
-    func jsonToStruct<T: Decodable>(json: [String: Any], decodingStruct: T.Type) -> T? {
+    func jsonToStruct<T: Decodable>(json: JSONKeyPair, decodingStruct: T.Type) -> T? {
         do {
             let realData = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
             let model = try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: realData)
