@@ -15,7 +15,7 @@ protocol EndpointsProtocol {
 //MARK: - AppEndpoints
 enum AppEndpoints: String, EndpointsProtocol {
     func getURLString() -> String {
-        return AppConstants.AppURLs.apiURL + self.rawValue
+        return AppConfig.getAPIURL() + self.rawValue
     }
     
     case characters = "characters"
@@ -26,7 +26,7 @@ enum AppEndpointsWithParamters: EndpointsProtocol {
     func getURLString() -> String {
         switch self {
         case .characters(let id):
-            return AppConstants.AppURLs.apiURL + "characters" + "/\(id)"
+            return AppConfig.getAPIURL() + "characters" + "/\(id)"
         }
     }
     
@@ -36,7 +36,7 @@ enum AppEndpointsWithParamters: EndpointsProtocol {
 //MARK: - AppleAPIEndpoints
 enum AppleAPIEndpoints: String, EndpointsProtocol {
     func getURLString() -> String {
-        return AppConstants.AppURLs.apiURL + self.rawValue
+        return AppConfig.getAPIURL() + self.rawValue
     }
     
     case characters = "characters"

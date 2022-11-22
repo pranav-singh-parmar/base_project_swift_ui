@@ -13,29 +13,31 @@ struct AppConstants {
     static let baseURL = "https://www.breakingbadapi.com/"
     static let dimensions = UIScreen.main.bounds.size
     
-    //MARK: - AppInfo
-    struct AppInfo {
-        static let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
-        static let appCurrentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        static let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
-        static var appId = 0
-    }
-    
     //MARK: - DeviceDimensions
     struct DeviceDimensions {
         static let width = dimensions.width
         static let height = dimensions.height
     }
+}
+
+class AppConfig {
+    private let apiURL = AppConstants.baseURL + "api/"
     
-    //MARK: - AppURLs
-    struct AppURLs {
-        static let apiURL = baseURL + "api/"
+    static func getAPIURL() -> String {
+        return AppConstants.baseURL + "api/"
     }
     
-    //MARK: - ApiEndPoints
-    struct ApiEndPoints {
-        static let characters = AppURLs.apiURL + "characters"
-    }
+    //    func updateAPIURL(_ urlString: String) {
+    //        apiURL = urlString
+    //    }
+}
+
+//MARK: - AppInfo
+struct AppInfo {
+    static let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
+    static let appCurrentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    static let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
+    static var appId = 0
 }
 
 //MARK: - enums
