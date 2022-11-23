@@ -20,8 +20,8 @@ struct CharacterCell: View {
             HStack(spacing: 6) {
                 KingfisherImageView(urlString: characterModel?.img ?? "",
                                     contentMode: .fill,
-                                    width: AppConstants.DeviceDimensions.width * 0.15,
-                                    height: AppConstants.DeviceDimensions.width * 0.15)
+                                    width: DeviceDimensions.width * 0.15,
+                                    height: DeviceDimensions.width * 0.15)
                 .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 2) {

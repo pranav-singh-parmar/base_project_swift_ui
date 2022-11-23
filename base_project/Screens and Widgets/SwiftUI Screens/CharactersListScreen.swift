@@ -53,7 +53,7 @@ struct CharactersListScreen: View {
                 ScrollView {
                     ForEach(0...14, id: \.self) { index in
                         ShimmerView()
-                            .frame(height: (AppConstants.DeviceDimensions.width * 0.15))
+                            .frame(height: DeviceDimensions.width * 0.15)
                             .padding(.horizontal, padding / 2)
                             .padding(.bottom, padding)
                             .if(index == 0) { $0.padding(.top, padding) }

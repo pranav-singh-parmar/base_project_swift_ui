@@ -169,7 +169,14 @@ class ApiServices {
                         case 100...199:
                             return self.getApiErrorPublisher(.InformationalError(response.statusCode), inUrl: urlString)
                         case 200...299:
-                            //let model = try JSONDecoder().decode(decodingStruct.self, from: data)
+                            #if DEBUG
+                                do {
+                                    let _ = try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: data)
+                                    print("")
+                                } catch {
+                                    print(error.localizedDescription)
+                                }
+                            #endif
                             return Just(data).decode(type: decodingStruct.self, decoder: Singleton.sharedInstance.jsonDecoder)
                                 .mapError { _ in
                                     self.printApiError(.DecodingError, inUrl: urlString)

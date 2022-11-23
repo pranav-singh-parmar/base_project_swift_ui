@@ -8,23 +8,17 @@
 import Foundation
 import SwiftUI
 
-struct AppConstants {
-    
-    static let baseURL = "https://www.breakingbadapi.com/"
-    static let dimensions = UIScreen.main.bounds.size
-    
-    //MARK: - DeviceDimensions
-    struct DeviceDimensions {
-        static let width = dimensions.width
-        static let height = dimensions.height
-    }
+//MARK: - DeviceDimensions
+struct DeviceDimensions {
+    static let width = UIScreen.main.bounds.size.width
+    static let height = UIScreen.main.bounds.size.height
 }
 
-class AppConfig {
-    private let apiURL = AppConstants.baseURL + "api/"
+class AppURLs {
+    static let baseURL = "https://www.breakingbadapi.com/"
     
     static func getAPIURL() -> String {
-        return AppConstants.baseURL + "api/"
+        return baseURL + "api/"
     }
     
     //    func updateAPIURL(_ urlString: String) {
