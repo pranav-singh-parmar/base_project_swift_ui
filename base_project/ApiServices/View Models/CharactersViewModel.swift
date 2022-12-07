@@ -17,7 +17,7 @@ class CharactersViewModel: ObservableObject {
     private var total = 0
     private var currentLength = 0
     private(set) var getCharactersAS: ApiStatus = .NotHitOnce
-
+    
     var fetchedAllData: Bool {
         return total <= currentLength
     }
@@ -38,22 +38,29 @@ class CharactersViewModel: ObservableObject {
         
         let params = ["limit": 10, "offset": currentLength] as JSONKeyPair
         
-        Singleton.sharedInstance.apiServices.hitApi(withHttpMethod: .GET, endpoint: AppEndpoints.characters, parameterEncoding: .QueryParameters, parameters: params, decodingStruct: Characters.self) { [weak self] in
-                self?.getCharacters(clearList: clearList)
+        var urlRequest =
+        Singleton.sharedInstance.apiServices.getURL(ofHTTPMethod: .GET,
+                                                    forAppEndpoint: .characters,
+                                                    withQueryParameters: params)
+        
+        urlRequest?.addHeaders()
+        
+        Singleton.sharedInstance.apiServices.hitApi(withURLRequest: urlRequest, decodingStruct: Characters.self) { [weak self] in
+            self?.getCharacters(clearList: clearList)
+        }
+        .sink{ [weak self] completion in
+            switch completion {
+            case .finished:
+                self?.getCharactersAS = .ApiHit
+                break
+            case .failure(_):
+                self?.getCharactersAS = .ApiHitWithError
+                break
             }
-            .sink{ [weak self] completion in
-                switch completion {
-                    case .finished:
-                    self?.getCharactersAS = .ApiHit
-                    break
-                    case .failure(_):
-                    self?.getCharactersAS = .ApiHitWithError
-                    break
-                }
-            } receiveValue: { [weak self] response in
-                self?.total = 30
-                self?.characters.append(contentsOf: response)
-                self?.currentLength = self?.characters.count ?? 0
-            }.store(in: &cancellable)
+        } receiveValue: { [weak self] response in
+            self?.total = 30
+            self?.characters.append(contentsOf: response)
+            self?.currentLength = self?.characters.count ?? 0
+        }.store(in: &cancellable)
     }
 }

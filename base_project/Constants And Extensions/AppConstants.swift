@@ -39,8 +39,17 @@ enum HTTPMethod: String {
     case GET, POST, PUT, DELETE
 }
 
-enum ParameterEncoding {
-    case None, QueryParameters, JSONBody, URLFormEncoded, FormData
+enum ParameterEncoding: String {
+//    init?(rawValue: String) {
+//        <#code#>
+//    }
+//    
+//    var rawValue: String
+//    
+//    typealias RawValue = String
+//    
+//    case JSONBody = "", URLFormEncoded = "", FormData(String) = ""
+    case JSONBody, URLFormEncoded, FormData
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses

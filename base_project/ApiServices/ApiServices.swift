@@ -27,128 +27,44 @@ class ApiServices {
         return urlComponents
     }
     
-    func getURLRequest(withHTTPMethod httpMethod: HTTPMethod, urlString: String, includesAppAuth: Bool, headers: JSONKeyPair?, parameterEncoding: ParameterEncoding, parameters: JSONKeyPair?, fileModel: [FileModel]?) -> URLRequest? {
-        
-        var urlRequest: URLRequest?
-        
-        switch parameterEncoding {
-        case .None:
-            if let url = URL(string: urlString) {
+    func getURL(ofHTTPMethod httpMethod: HTTPMethod,
+                forAppEndpoint appEndpoint: AppEndpoints,
+                withQueryParameters queryParameters: JSONKeyPair?) -> URLRequest? {
+        return getURL(ofHTTPMethod: httpMethod, forString: appEndpoint.getURLString(), withQueryParameters: queryParameters)
+    }
+    
+    private func getURL(ofHTTPMethod httpMethod: HTTPMethod,
+                        forString urlString: String,
+                        withQueryParameters queryParameters: JSONKeyPair?) -> URLRequest? {
+        var urlRequest: URLRequest? = nil
+        if let queryParameters {
+            let urlComponents = getQueryItems(forURLString: urlString, andParamters: queryParameters)
+            if let url = urlComponents?.url {
                 urlRequest = URLRequest(url: url)
             }
-        case .QueryParameters:
-            if let parameters {
-                let urlComponents = getQueryItems(forURLString: urlString, andParamters: parameters)
-                if let url = urlComponents?.url {
-                    urlRequest = URLRequest(url: url)
-                }
-            } else if let url = URL(string: urlString) {
-                urlRequest = URLRequest(url: url)
-            }
-        case .JSONBody:
-            if let url = URL(string: urlString) {
-                urlRequest = URLRequest(url: url)
-                if let parameters {
-                    do {
-                        let jsonData = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
-                        urlRequest?.httpBody = jsonData
-                        urlRequest?.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                    } catch {
-                        print("error in \(urlString)", error.localizedDescription)
-                    }
-                }
-            }
-        case .URLFormEncoded:
-            if let url = URL(string: urlString) {
-                urlRequest = URLRequest(url: url)
-                if let parameters {
-                    let urlComponents = getQueryItems(forURLString: urlString, andParamters: parameters)
-                    let formEncodedString = urlComponents?.percentEncodedQuery
-                    if let formEncodedData = formEncodedString?.data(using: .utf8) {
-                        urlRequest?.httpBody = formEncodedData
-                        urlRequest?.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-                    } else {
-                        print("error in \(urlString) not able to process URLFormEncoded")
-                    }
-                }
-            }
-        case .FormData:
-            //https://stackoverflow.com/questions/26162616/upload-image-with-parameters-in-swift
-            //https://orjpap.github.io/swift/http/ios/urlsession/2021/04/26/Multipart-Form-Requests.html
-            //https://bhuvaneswarikittappa.medium.com/upload-image-to-server-using-multipart-form-data-in-ios-swift-5c4eb6de26e2
-            if let url = URL(string: urlString) {
-                urlRequest = URLRequest(url: url)
-                
-                let boundary = "Boundary-\(UUID().uuidString)"
-                let lineBreak = "\r\n"
-                
-                var body = Data()
-                
-                if let parameters {
-                    parameters.forEach { key, value in
-                        if let params = value as? JSONKeyPair, let data = try? JSONSerialization.data(withJSONObject: params, options: .prettyPrinted) {
-                            body.appendString("--\(boundary + lineBreak)")
-                            body.appendString("Content-Disposition: form-data; name=\"\(key)\"\(lineBreak + lineBreak)")
-                            //body.appendString("Content-Type: application/json;charset=utf-8\(lineBreak + lineBreak)")
-                            body.append(data)
-                            body.appendString(lineBreak)
-                        } else if let data = "\(value)".data(using: .utf8) {
-                            body.appendString("--\(boundary + lineBreak)")
-                            body.appendString("Content-Disposition: form-data; name=\"\(key)\"\(lineBreak + lineBreak)")
-                            //body.appendString("Content-Type: text/plain;charset=utf-8\(lineBreak + lineBreak)")
-                            body.append(data)
-                            body.appendString(lineBreak)
-                        }
-                    }
-                }
-                
-                if let fileModel {
-                    for fileModel in fileModel {
-                        body.appendString("--\(boundary + lineBreak)")
-                        body.appendString("Content-Disposition: form-data; name=\"\(fileModel.fileKeyName)\"; filename=\"\(fileModel.fileName)\"\(lineBreak)")
-                        body.appendString("Content-Type: \(fileModel.mimeType + lineBreak + lineBreak)")
-                        body.append(fileModel.file)
-                        body.appendString(lineBreak)
-                    }
-                }
-                
-                body.appendString("--\(boundary)--\(lineBreak)")
-                
-                urlRequest?.httpBody = body
-                urlRequest?.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-                urlRequest?.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
-            }
+        } else if let url = URL(string: urlString) {
+            urlRequest = URLRequest(url: url)
         }
-        
         urlRequest?.httpMethod = httpMethod.rawValue
-        
-        //set headers
-        urlRequest?.addValue("iOS", forHTTPHeaderField: "device")
-        urlRequest?.addValue("application/json", forHTTPHeaderField: "Accept")
-        //urlRequest?.addValue("token", forHTTPHeaderField: "Authorization")
-        
-        if let headers {
-            headers.forEach { key, value in
-                urlRequest?.addValue(key, forHTTPHeaderField: "\(value)")
-            }
-        }
-        
-        print("url", urlRequest?.url?.absoluteString ?? "url not set")
-        print("http method is", urlRequest?.httpMethod ?? "http method not assigned")
-        print("headers are", urlRequest?.allHTTPHeaderFields ?? [:])
-        print("paramenterEncoding is", parameterEncoding)
-        print("http body data", urlRequest?.httpBody ?? Data())
-        print("parameters are", parameters ?? [:])
-        
         return urlRequest
     }
     
-    func hitApi<T: Decodable>(withHttpMethod httpMethod: HTTPMethod, endpoint: EndpointsProtocol, hasAppAuthToken: Bool = false, headers: JSONKeyPair? = nil, parameterEncoding: ParameterEncoding = .None, parameters: JSONKeyPair? = nil, fileModel: [FileModel]? = nil, decodingStruct: T.Type, outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
+    func hitApi<T: Decodable>(withURLRequest urlRequest: URLRequest?,
+                              decodingStruct: T.Type,
+                              outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
         
-        let urlString = endpoint.getURLString()
+        let urlString = urlRequest?.url?.absoluteString ?? "URL not set in \(#function)"
+        
+        print("url", urlString)
+        print("http method is", urlRequest?.httpMethod ?? "http method not assigned")
+        print("headers are", urlRequest?.allHTTPHeaderFields ?? [:])
+        print("paramenterEncoding is", urlRequest?.value(forHTTPHeaderField: "Content-Type") ?? "None")
+        print("http body data", urlRequest?.httpBody ?? Data())
+//            print("parameters are", parameters ?? [:])
+        
         if Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet {
             
-            if let urlRequest = getURLRequest(withHTTPMethod: httpMethod, urlString: urlString, includesAppAuth: hasAppAuthToken, headers: headers, parameterEncoding: parameterEncoding, parameters: parameters, fileModel: fileModel) {
+            if let urlRequest {
                 return URLSession
                     .shared
                     .dataTaskPublisher(for: urlRequest)
@@ -157,7 +73,7 @@ class ApiServices {
                         self.printApiError(.MapError, inUrl: urlString)
                         return APIError.MapError
                     }
-                    //.decode(type: T.self, decoder: Singleton.sharedInstance.jsonDecoder)
+                //.decode(type: T.self, decoder: Singleton.sharedInstance.jsonDecoder)
                     .flatMap { data, response -> AnyPublisher<T, APIError> in
                         guard let response = response as? HTTPURLResponse else{
                             return self.getApiErrorPublisher(.InvalidHTTPURLResponse, inUrl: urlString)
@@ -170,12 +86,12 @@ class ApiServices {
                             return self.getApiErrorPublisher(.InformationalError(response.statusCode), inUrl: urlString)
                         case 200...299:
                             #if DEBUG
-                                do {
-                                    let _ = try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: data)
-                                    print("")
-                                } catch {
-                                    print(error.localizedDescription)
-                                }
+                            do {
+                                let _ = try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: data)
+                                print("")
+                            } catch {
+                                print(error.localizedDescription)
+                            }
                             #endif
                             return Just(data).decode(type: decodingStruct.self, decoder: Singleton.sharedInstance.jsonDecoder)
                                 .mapError { _ in
@@ -241,5 +157,92 @@ class ApiServices {
     
     private func printApiError(_ apiError: APIError, inUrl urlString: String) {
         print("in api \(urlString) \(apiError)")
+    }
+}
+
+extension URLRequest {
+    mutating func addHeaders(_ headers: JSONKeyPair? = nil, shouldAddAuthToken: Bool = false) {
+        //set headers
+        self.addValue("iOS", forHTTPHeaderField: "device")
+        self.addValue("application/json", forHTTPHeaderField: "Accept")
+        if shouldAddAuthToken {
+            //urlRequest?.addValue("token", forHTTPHeaderField: "Authorization")
+        }
+        
+        if let headers {
+            headers.forEach { key, value in
+                self.addValue(key, forHTTPHeaderField: "\(value)")
+            }
+        }
+    }
+    
+    mutating func addParameters(_ parameters: JSONKeyPair?, withFileModel fileModel: [FileModel]? = nil, in parameterEncoding: ParameterEncoding) {
+        let urlString = self.url?.absoluteString ?? ""
+        switch parameterEncoding {
+        case .JSONBody:
+            if let parameters {
+                do {
+                    let jsonData = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
+                    self.httpBody = jsonData
+                    self.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                } catch {
+                    print("error in \(urlString) with parameterEncoding \(parameterEncoding)", error.localizedDescription)
+                }
+            }
+        case .URLFormEncoded:
+            if let parameters {
+                let urlComponents = Singleton.sharedInstance.apiServices.getQueryItems(forURLString: urlString, andParamters: parameters)
+                let formEncodedString = urlComponents?.percentEncodedQuery
+                if let formEncodedData = formEncodedString?.data(using: .utf8) {
+                    self.httpBody = formEncodedData
+                    self.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+                } else {
+                    print("error in \(urlString) with parameterEncoding \(parameterEncoding)")
+                }
+            }
+        case .FormData:
+            //https://stackoverflow.com/questions/26162616/upload-image-with-parameters-in-swift
+            //https://orjpap.github.io/swift/http/ios/urlsession/2021/04/26/Multipart-Form-Requests.html
+            //https://bhuvaneswarikittappa.medium.com/upload-image-to-server-using-multipart-form-data-in-ios-swift-5c4eb6de26e2
+            
+            let boundary = "Boundary-\(UUID().uuidString)"
+            let lineBreak = "\r\n"
+            
+            var body = Data()
+            
+            if let parameters {
+                parameters.forEach { key, value in
+                    if let params = value as? JSONKeyPair, let data = try? JSONSerialization.data(withJSONObject: params, options: .prettyPrinted) {
+                        body.appendString("--\(boundary + lineBreak)")
+                        body.appendString("Content-Disposition: form-data; name=\"\(key)\"\(lineBreak + lineBreak)")
+                        //body.appendString("Content-Type: application/json;charset=utf-8\(lineBreak + lineBreak)")
+                        body.append(data)
+                        body.appendString(lineBreak)
+                    } else if let data = "\(value)".data(using: .utf8) {
+                        body.appendString("--\(boundary + lineBreak)")
+                        body.appendString("Content-Disposition: form-data; name=\"\(key)\"\(lineBreak + lineBreak)")
+                        //body.appendString("Content-Type: text/plain;charset=utf-8\(lineBreak + lineBreak)")
+                        body.append(data)
+                        body.appendString(lineBreak)
+                    }
+                }
+            }
+            
+            if let fileModel {
+                for fileModel in fileModel {
+                    body.appendString("--\(boundary + lineBreak)")
+                    body.appendString("Content-Disposition: form-data; name=\"\(fileModel.fileKeyName)\"; filename=\"\(fileModel.fileName)\"\(lineBreak)")
+                    body.appendString("Content-Type: \(fileModel.mimeType + lineBreak + lineBreak)")
+                    body.append(fileModel.file)
+                    body.appendString(lineBreak)
+                }
+            }
+            
+            body.appendString("--\(boundary)--\(lineBreak)")
+            
+            self.httpBody = body
+            self.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            self.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
+        }
     }
 }
