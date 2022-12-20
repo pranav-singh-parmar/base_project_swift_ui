@@ -33,6 +33,12 @@ class ApiServices {
         return getURL(ofHTTPMethod: httpMethod, forString: appEndpoint.getURLString(), withQueryParameters: queryParameters)
     }
     
+    func getURL(ofHTTPMethod httpMethod: HTTPMethod,
+                forAppEndpoint appEndpoint: AppEndpointsWithParamters,
+                withQueryParameters queryParameters: JSONKeyPair?) -> URLRequest? {
+        return getURL(ofHTTPMethod: httpMethod, forString: appEndpoint.getURLString(), withQueryParameters: queryParameters)
+    }
+    
     private func getURL(ofHTTPMethod httpMethod: HTTPMethod,
                         forString urlString: String,
                         withQueryParameters queryParameters: JSONKeyPair?) -> URLRequest? {
@@ -46,6 +52,8 @@ class ApiServices {
             urlRequest = URLRequest(url: url)
         }
         urlRequest?.httpMethod = httpMethod.rawValue
+        print("\nurl", urlRequest?.url?.absoluteString ?? "URL not set for \(urlString)")
+        print("http method is", urlRequest?.httpMethod ?? "http method not assigned")
         return urlRequest
     }
     
@@ -53,14 +61,9 @@ class ApiServices {
                               decodingStruct: T.Type,
                               outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
         
-        let urlString = urlRequest?.url?.absoluteString ?? "URL not set in \(#function)"
-        
-        print("url", urlString)
-        print("http method is", urlRequest?.httpMethod ?? "http method not assigned")
         print("headers are", urlRequest?.allHTTPHeaderFields ?? [:])
-        print("paramenterEncoding is", urlRequest?.value(forHTTPHeaderField: "Content-Type") ?? "None")
-        print("http body data", urlRequest?.httpBody ?? Data())
-//            print("parameters are", parameters ?? [:])
+        let urlString = urlRequest?.url?.absoluteString ?? "URL not set"
+        print("url", urlString, "\n")
         
         if Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet {
             
@@ -176,7 +179,7 @@ extension URLRequest {
         }
     }
     
-    mutating func addParameters(_ parameters: JSONKeyPair?, withFileModel fileModel: [FileModel]? = nil, in parameterEncoding: ParameterEncoding) {
+    mutating func addParameters(_ parameters: JSONKeyPair?, withFileModel fileModel: [FileModel]? = nil, as parameterEncoding: ParameterEncoding) {
         let urlString = self.url?.absoluteString ?? ""
         switch parameterEncoding {
         case .JSONBody:
@@ -243,6 +246,10 @@ extension URLRequest {
             self.httpBody = body
             self.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             self.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
+            
+            print("paramenterEncoding is", parameterEncoding)
+            print("http paramters", parameters ?? [:])
+            print("http body data", self.httpBody ?? Data())
         }
     }
 }

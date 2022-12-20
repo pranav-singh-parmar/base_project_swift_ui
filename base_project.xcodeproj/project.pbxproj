@@ -36,6 +36,7 @@
 		1581A0512898277200CD1DF0 /* GeneralFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581A0502898277200CD1DF0 /* GeneralFunctions.swift */; };
 		1581A053289827AB00CD1DF0 /* Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581A052289827AB00CD1DF0 /* Singleton.swift */; };
 		1581A05628982A7A00CD1DF0 /* AppEnvironmentObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581A05528982A7A00CD1DF0 /* AppEnvironmentObject.swift */; };
+		15BC6DF629522BAF000B9CE2 /* AppTexts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BC6DF529522BAF000B9CE2 /* AppTexts.swift */; };
 		15C81435289972190029EA26 /* CharactersListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C81434289972190029EA26 /* CharactersListScreen.swift */; };
 		15C81438289973BD0029EA26 /* CharactersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C81437289973BD0029EA26 /* CharactersViewModel.swift */; };
 		15ED1AA628A406FA008A92B2 /* CharacterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15ED1AA528A406FA008A92B2 /* CharacterCell.swift */; };
@@ -97,6 +98,7 @@
 		1581A0502898277200CD1DF0 /* GeneralFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralFunctions.swift; sourceTree = "<group>"; };
 		1581A052289827AB00CD1DF0 /* Singleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Singleton.swift; sourceTree = "<group>"; };
 		1581A05528982A7A00CD1DF0 /* AppEnvironmentObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironmentObject.swift; sourceTree = "<group>"; };
+		15BC6DF529522BAF000B9CE2 /* AppTexts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTexts.swift; sourceTree = "<group>"; };
 		15C81434289972190029EA26 /* CharactersListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersListScreen.swift; sourceTree = "<group>"; };
 		15C81437289973BD0029EA26 /* CharactersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersViewModel.swift; sourceTree = "<group>"; };
 		15ED1AA528A406FA008A92B2 /* CharacterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterCell.swift; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 				1581A04A289826F700CD1DF0 /* Alerts.swift */,
 				1581A04C2898271700CD1DF0 /* AppConstants.swift */,
 				1581A04E2898274A00CD1DF0 /* Extensions.swift */,
+				15BC6DF529522BAF000B9CE2 /* AppTexts.swift */,
 				1581A0502898277200CD1DF0 /* GeneralFunctions.swift */,
 				1581A052289827AB00CD1DF0 /* Singleton.swift */,
 			);
@@ -596,6 +599,7 @@
 				151F44F5289D646800BC7D2E /* NetworkImage.swift in Sources */,
 				1553B0962926861A0079E9EB /* Endpoints.swift in Sources */,
 				1581A04F2898274A00CD1DF0 /* Extensions.swift in Sources */,
+				15BC6DF629522BAF000B9CE2 /* AppTexts.swift in Sources */,
 				1581A04B289826F700CD1DF0 /* Alerts.swift in Sources */,
 				151F44F7289D6C2900BC7D2E /* ListFooterProgressView.swift in Sources */,
 				1581A01D2898263100CD1DF0 /* ContentView.swift in Sources */,
