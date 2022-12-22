@@ -32,45 +32,43 @@ class Alerts {
         return alert
     }
     
-//    func errorAlertWith(message: String){
-//        alertWith(title: AppTexts.AlertMessages.errorWithExclamation, message: message)
-//    }
-//
-//    func alertWith(title: String, message: String, defaultButtonTitle: String = "OK") {
-//        let alert = getAlertController(ofStyle: .alert, withTitle: title, andMessage: message)
-//
-//        alert.addAction(UIAlertAction(title: AppTexts.AlertMessages.ok.uppercased(), style: UIAlertAction.Style.default, handler: nil))
-//
-//        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
-//        vc?.present(alert, animated: true, completion: nil)
-//    }
-//
-//    func internetNotConnectedAlert(outputBlock : @escaping () -> Void){
-//        let alert = getAlertController(ofStyle: .alert,
-//                                       withTitle: AppTexts.AlertMessages.networkUnreachableWithExclamation,
-//                                       andMessage: AppTexts.AlertMessages.youAreNotConnectedToInternet)
-//
-//        alert.addAction(UIAlertAction(title: AppTexts.AlertMessages.tapToRetry, style: UIAlertAction.Style.default) { _ in
-//            outputBlock()
-//        })
-//
-//        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
-//        vc?.present(alert, animated: true, completion: nil)
-//    }
-//
-//    func handle401StatueCode(){
-//        let alert = getAlertController(ofStyle: .alert,
-//                                       withTitle: AppTexts.AlertMessages.sessionExpiredWithExclamation,
-//                                       andMessage: AppTexts.AlertMessages.yourSessionHasExpiredPleaseLoginAgain)
-//
-//        alert.addAction(UIAlertAction(title: AppTexts.AlertMessages.ok.uppercased(), style: UIAlertAction.Style.default, handler: { _ in
-//            Singleton.sharedInstance.generalFunctions.deinitilseAllVariables()
-//            let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
-//            vc?.changeRootToVC(withIdentifier: String(describing: LoginViewController.self), inStoryboard: Storyboards.Login)
-//        }))
-//
-//
-//        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
-//        vc?.present(alert, animated: true, completion: nil)
-//    }
+    func errorAlertWith(message: String){
+        alertWith(title: AppTexts.AlertMessages.errorWithExclamation, message: message)
+    }
+
+    func alertWith(title: String, message: String, defaultButtonTitle: String = "OK") {
+        let alert = getAlertController(ofStyle: .alert, withTitle: title, andMessage: message)
+
+        alert.addAction(UIAlertAction(title: AppTexts.AlertMessages.ok.uppercased(), style: UIAlertAction.Style.default, handler: nil))
+
+        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        vc?.present(alert, animated: true, completion: nil)
+    }
+
+    func internetNotConnectedAlert(outputBlock : @escaping () -> Void){
+        let alert = getAlertController(ofStyle: .alert,
+                                       withTitle: AppTexts.AlertMessages.networkUnreachableWithExclamation,
+                                       andMessage: AppTexts.AlertMessages.youAreNotConnectedToInternet)
+
+        alert.addAction(UIAlertAction(title: AppTexts.AlertMessages.tapToRetry, style: UIAlertAction.Style.default) { _ in
+            outputBlock()
+        })
+
+        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        vc?.present(alert, animated: true, completion: nil)
+    }
+
+    func handle401StatueCode(){
+        let alert = getAlertController(ofStyle: .alert,
+                                       withTitle: AppTexts.AlertMessages.sessionExpiredWithExclamation,
+                                       andMessage: AppTexts.AlertMessages.yourSessionHasExpiredPleaseLoginAgain)
+
+        alert.addAction(UIAlertAction(title: AppTexts.AlertMessages.ok.uppercased(), style: UIAlertAction.Style.default, handler: { _ in
+            Singleton.sharedInstance.generalFunctions.deinitilseAllVariables()
+        }))
+
+
+        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        vc?.present(alert, animated: true, completion: nil)
+    }
 }
