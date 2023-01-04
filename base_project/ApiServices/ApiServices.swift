@@ -101,7 +101,7 @@ class ApiServices {
                                 print("Value '\(value)' not found:", context.debugDescription)
                                 print("codingPath:", context.codingPath)
                             } catch let DecodingError.dataCorrupted(context) {
-                                print("Data Corrupted", context.debugDescription)
+                                print("Data Corrupted:", context.debugDescription)
                                 print("codingPath:", context.codingPath)
                              } catch {
                                 print(error.localizedDescription)
