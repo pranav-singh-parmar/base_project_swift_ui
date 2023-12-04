@@ -38,14 +38,13 @@ class CharactersViewModel: ObservableObject {
         
         let params = ["limit": 10, "offset": currentLength] as JSONKeyPair
         
-        var urlRequest =
-        Singleton.sharedInstance.apiServices.getURL(ofHTTPMethod: .GET,
-                                                    forAppEndpoint: .characters,
-                                                    withQueryParameters: params)
+        var urlRequest = URLRequest(ofHTTPMethod: .GET,
+                                    forAppEndpoint: .characters,
+                                    withQueryParameters: params)
         
-        urlRequest?.addHeaders()
+        urlRequest.addHeaders()
         
-        Singleton.sharedInstance.apiServices.hitApi(withURLRequest: urlRequest, decodingStruct: Characters.self) { [weak self] in
+        urlRequest.hitApi(withURLRequest: urlRequest, decodingStruct: Characters.self) { [weak self] in
             self?.getCharacters(clearList: clearList)
         }
         .sink{ [weak self] completion in
