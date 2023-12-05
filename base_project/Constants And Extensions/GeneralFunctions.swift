@@ -30,7 +30,7 @@ class GeneralFunctions {
         if let tabBarController = rootViewController as? UITabBarController {
             return tabBarController.selectedViewController
         }
-        return nil
+        return rootViewController
     }
     
     func getStatusBarHeight() -> CGFloat {

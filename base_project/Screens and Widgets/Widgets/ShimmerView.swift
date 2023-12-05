@@ -24,11 +24,11 @@ struct ShimmerView: View {
     
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(Color.shimmerColor)
+            .fill(Color.placeholderColor)
             .opacity(opacity)
             .transition(.opacity)
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1){
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
                     let baseAnimation = Animation.easeInOut(duration: duration)
                     let repeated = baseAnimation.repeatForever(autoreverses: true)
                     withAnimation(repeated) {

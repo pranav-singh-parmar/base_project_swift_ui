@@ -100,22 +100,28 @@ enum BitterFontEnum {
 extension Color {
     static let blackColor = Color(.blackColor)
     static let blackColorForAllModes = Color(.blackColorForAllModes)
+    
+    static let darkGrayColor = Color(.darkGrayColor)
+    static let defaultLightGray = Color(.defaultLightGray)
+    static let lightGrayColor = Color(.lightGrayColor)
+    static let placeholderColor = Color(.placeholderColor)
+    
     static let whiteColor = Color(.whiteColor)
     static let whiteColorForAllModes = Color(.whiteColorForAllModes)
-    
-    static let defaultLightGray = Color(.defaultLightGray)
-    static let shimmerColor = Color(.shimmerColor)
 }
 
 //MARK: - UIColor
 extension UIColor {
     static let blackColor = UIColor(named: "blackColor") ?? UIColor.clear
     static let blackColorForAllModes = UIColor(named: "blackColorForAllModes") ?? UIColor.clear
+    
+    static let darkGrayColor = UIColor(named: "darkGrayColor") ?? UIColor.clear
+    static let defaultLightGray = UIColor(named: "defaultLightGray") ?? UIColor.clear
+    static let lightGrayColor = UIColor(named: "lightGrayColor") ?? UIColor.clear
+    static let placeholderColor = UIColor(named: "placeholderColor") ?? UIColor.clear
+    
     static let whiteColor = UIColor(named: "whiteColor") ?? UIColor.clear
     static let whiteColorForAllModes = UIColor(named: "whiteColorForAllModes") ?? UIColor.clear
-    
-    static let defaultLightGray = UIColor(named: "defaultLightGray") ?? UIColor.clear
-    static let shimmerColor = UIColor(named: "shimmerColor") ?? UIColor.clear
 }
 
 //MARK: Font

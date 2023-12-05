@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ListFooterProgressView: View {
-    
     var body: some View {
         HStack {
             Spacer()

@@ -9,6 +9,12 @@ import Foundation
 
 class AppTexts {
     
+    static let noDataAvailable = "No Data Available"
+    
+    static let usersList = "Users List"
+    static let uploadImage = "Upload Image"
+    static let addImage = "Add Image"
+    
     class AlertMessages {
         //common
         static let successWithExclamation = "Success!"
@@ -26,5 +32,10 @@ class AppTexts {
         //session expired
         static let sessionExpiredWithExclamation = "Session Expired!"
         static let yourSessionHasExpiredPleaseLoginAgain = "Your Session has expired, PLease Login Again."
+        
+        //image picker
+        static let chooseImage = "Choose Image"
+        static let fromCamera = "From Camera"
+        static let fromPhotoLibrary = "From Photo Library"
     }
 }

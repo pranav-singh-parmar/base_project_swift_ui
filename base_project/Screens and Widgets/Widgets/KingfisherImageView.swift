@@ -1,57 +1,51 @@
 //
 //  KingfisherImageView.swift
-//  base_project
+//  base_project_api_integration
 //
-//  Created by Pranav Singh on 09/10/22.
+//  Created by MacBook PRO on 18/10/23.
 //
 
 import SwiftUI
 import Kingfisher
 
-struct KingfisherImageView: View {
+struct KingfisherImageView<Transform> : View where Transform : ViewModifier {
+    
     private let urlString: String
     // when aspect ratio increases height decreases
-    private let aspectRatio: CGFloat?
-    private let contentMode: SwiftUI.ContentMode
-    private let maxDimensionsGiven: Bool
-    private let width: CGFloat?
-    private let height: CGFloat?
+    // a = w/h
+    private let viewModifier: Transform
     
     init(urlString: String = "",
-         aspectRatio: CGFloat? = nil,
-         contentMode: SwiftUI.ContentMode = SwiftUI.ContentMode.fill,
-         maxDimensionsGiven: Bool = false,
-         width: CGFloat? = nil,
-         height: CGFloat? = nil) {
+         viewModifier: Transform) {
         self.urlString = urlString
-        self.aspectRatio = aspectRatio
-        self.contentMode = contentMode
-        self.maxDimensionsGiven = maxDimensionsGiven
-        self.width = width
-        self.height = height
+        self.viewModifier = viewModifier
     }
     
     var body: some View {
-        KFImage.url(URL(string: urlString))
+        kingfisherIV
+            .modifier(viewModifier)
+    }
+    
+    private var kingfisherIV: some View {
+        return KFImage.url(URL(string: urlString))
             .fade(duration: 1)
             .placeholder {
-                Image("placeholderImage")
-                    .resizable()
-                    .aspectRatio(aspectRatio, contentMode: contentMode)
-                    .if (!maxDimensionsGiven) { $0.frame(width: width, height: height) }
-                    .if (maxDimensionsGiven) { $0.frame(maxWidth: width, maxHeight: height) }
+                placeholder
             }
             .cacheOriginalImage()
             .resizable()
-            .aspectRatio(aspectRatio, contentMode: contentMode)
-            .if (!maxDimensionsGiven) { $0.frame(width: width, height: height) }
-            .if (maxDimensionsGiven) { $0.frame(maxWidth: width, maxHeight: height) }
     }
-
+    
+    private var placeholder: some View {
+        Image("placeholderImage")
+            .resizable()
+            .modifier(viewModifier)
+    }
 }
 
 struct KingfisherImageView_Previews: PreviewProvider {
     static var previews: some View {
-        KingfisherImageView()
+        KingfisherImageView(urlString: "https://picsum.photos/250?image=9",
+                            viewModifier: NetworkImageModifier())
     }
 }

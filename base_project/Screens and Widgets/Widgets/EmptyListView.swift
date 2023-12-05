@@ -8,27 +8,21 @@
 import SwiftUI
 
 struct EmptyListView: View {
-    private let imageName: String
+    
     private let text: String
     
-    private let dimensions: CGFloat = 200//UIScreen.main.bounds.size.width - 2
-    
-    init (imageName: String = "noDataImage", text: String = "No Data Available"){
-        self.imageName = imageName
+    init(text: String = AppTexts.noDataAvailable){
         self.text = text
     }
     
     var body: some View {
-        
         VStack{
             Spacer()
             HStack {
                 Spacer()
-                VStack(spacing: 20) {
-                    Text(text)
-                        .font(.bitterBody)
-                        .foregroundColor(.blackColor)
-                }
+                Text(text)
+                    .font(.bitterBody)
+                    .foregroundColor(.blackColor)
                 Spacer()
             }
             Spacer()
