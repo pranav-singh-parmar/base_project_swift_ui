@@ -18,9 +18,9 @@ struct CharactersListScreen: View {
     var body: some View {
         ZStack {
             let count = charactersVM.characters.count
-            if charactersVM.getCharactersAS == ApiStatus.ApiHit && count == 0 {
+            if charactersVM.getCharactersAS == .apiHit && count == 0 {
                 EmptyListView(text: "No Characters Found")
-            } else if charactersVM.getCharactersAS == ApiStatus.ApiHit || count != 0 {
+            } else if charactersVM.getCharactersAS == .apiHit || count != 0 {
                 ScrollViewReader { reader in
                     List {
                         Section(footer: !charactersVM.fetchedAllData ?
@@ -53,7 +53,7 @@ struct CharactersListScreen: View {
                 ScrollView {
                     ForEach(0...14, id: \.self) { index in
                         ShimmerView()
-                            .frame(height: DeviceDimensions.width * 0.15)
+                            .frame(height: DeviceDimensions.width(withMultiplier: 0.15))
                             .padding(.horizontal, padding / 2)
                             .padding(.bottom, padding)
                             .if(index == 0) { $0.padding(.top, padding) }

@@ -16,20 +16,20 @@ class CharactersViewModel: ObservableObject {
     
     private var total = 0
     private var currentLength = 0
-    private(set) var getCharactersAS: ApiStatus = .NotHitOnce
+    private(set) var getCharactersAS: ApiStatus = .notHitOnce
     
     var fetchedAllData: Bool {
         return total <= currentLength
     }
     
     func paginateWithIndex(_ index: Int) {
-        if getCharactersAS != .IsBeingHit && index == currentLength - 1 && !fetchedAllData {
+        if getCharactersAS != .isBeingHit && index == currentLength - 1 && !fetchedAllData {
             getCharacters(clearList: false)
         }
     }
     
     func getCharacters(clearList: Bool = true){
-        getCharactersAS = .IsBeingHit
+        getCharactersAS = .isBeingHit
         
         if clearList {
             currentLength = 0
@@ -38,22 +38,22 @@ class CharactersViewModel: ObservableObject {
         
         let params = ["limit": 10, "offset": currentLength] as JSONKeyPair
         
-        var urlRequest = URLRequest(ofHTTPMethod: .GET,
+        var urlRequest = URLRequest(ofHTTPMethod: .get,
                                     forAppEndpoint: .characters,
                                     withQueryParameters: params)
         
         urlRequest.addHeaders()
         
-        urlRequest.hitApi(withURLRequest: urlRequest, decodingStruct: Characters.self) { [weak self] in
+        urlRequest.hitApi(decodingStruct: Characters.self) { [weak self] in
             self?.getCharacters(clearList: clearList)
         }
         .sink{ [weak self] completion in
             switch completion {
             case .finished:
-                self?.getCharactersAS = .ApiHit
+                self?.getCharactersAS = .apiHit
                 break
             case .failure(_):
-                self?.getCharactersAS = .ApiHitWithError
+                self?.getCharactersAS = .apiHitWithError
                 break
             }
         } receiveValue: { [weak self] response in

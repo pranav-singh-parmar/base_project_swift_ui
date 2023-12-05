@@ -10,8 +10,13 @@ import SwiftUI
 
 //MARK: - DeviceDimensions
 struct DeviceDimensions {
-    static let width = UIScreen.main.bounds.size.width
-    static let height = UIScreen.main.bounds.size.height
+    static func width(withMultiplier multiplier: CGFloat = 1) -> CGFloat {
+        return UIScreen.main.bounds.size.width * multiplier
+    }
+    
+    static func height(withMultiplier multiplier: CGFloat = 1) -> CGFloat {
+        return UIScreen.main.bounds.size.height * multiplier
+    }
 }
 
 class AppURLs {
@@ -36,7 +41,7 @@ struct AppInfo {
 
 //MARK: - enums
 enum HTTPMethod: String {
-    case GET, POST, PUT, DELETE
+    case get, post, put, delete
 }
 
 enum ParameterEncoding: String {
@@ -49,7 +54,7 @@ enum ParameterEncoding: String {
 //    typealias RawValue = String
 //    
 //    case JSONBody = "", URLFormEncoded = "", FormData(String) = ""
-    case JSONBody, URLFormEncoded, FormData
+    case jsonBody, urlFormEncoded, formData
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses
@@ -59,19 +64,35 @@ enum ParameterEncoding: String {
 //Client error responses (400–499)
 //Server error responses (500–599)
 enum APIError: Error {
-    case InternetNotConnected, UrlNotValid, MapError, InvalidHTTPURLResponse, InformationalError(Int), DecodingError, RedirectionalError(Int), ClientError(ClientErrorsEnum), ServerError(Int), Unknown(Int)
+    case internetNotConnected,
+         mapError,
+         invalidHTTPURLResponse,
+         informationalError(Int),
+         decodingError,
+         redirectionalError(Int),
+         clientError(ClientErrorsEnum),
+         serverError(Int),
+         unknown(Int)
 }
 
 enum ClientErrorsEnum: Int {
-    case BadRequest = 400, Unauthorized = 401, PaymentRequired = 402, Forbidden = 403, NotFound = 404, MethodNotAllowed = 405, NotAcceptable = 406, URITooLong = 414, Other
+    case badRequest = 400,
+         unauthorized = 401,
+         paymentRequired = 402,
+         forbidden = 403,
+         notFound = 404,
+         methodNotAllowed = 405,
+         notAcceptable = 406,
+         uriTooLong = 414,
+         other
 }
 
 enum ApiStatus {
-    case NotHitOnce, IsBeingHit, ApiHit, ApiHitWithError
+    case notHitOnce, isBeingHit, apiHit, apiHitWithError
 }
 
-enum FontEnum {
-    case Light, Regular, Medium, SemiBold, Bold
+enum BitterFontEnum {
+    case light, regular, medium, semiBold, bold
 }
 
 //MARK: - App Colors
@@ -99,46 +120,101 @@ extension UIColor {
 
 //MARK: Font
 extension Font {
-    static func bitterLight(size: CGFloat) -> Font {
-        return Font(UIFont.bitterLight(size: size) as CTFont)
+    static func bitterLight(ofSize size: CGFloat) -> Font {
+        return Font(UIFont.bitterLight(ofSize: size) as CTFont)
     }
     
-    static func bitterRegular(size: CGFloat) -> Font {
-        return Font(UIFont.bitterRegular(size: size) as CTFont)
+    static func bitterRegular(ofSize size: CGFloat) -> Font {
+        return Font(UIFont.bitterRegular(ofSize: size) as CTFont)
     }
     
-    static func bitterMedium(size: CGFloat) -> Font {
-        return Font(UIFont.bitterMedium(size: size) as CTFont)
+    static func bitterMedium(ofSize size: CGFloat) -> Font {
+        return Font(UIFont.bitterMedium(ofSize: size) as CTFont)
     }
     
-    static func bitterSemiBold(size: CGFloat) -> Font {
-        return Font(UIFont.bitterSemiBold(size: size) as CTFont)
+    static func bitterSemiBold(ofSize size: CGFloat) -> Font {
+        return Font(UIFont.bitterSemiBold(ofSize: size) as CTFont)
     }
     
-    static func bitterBold(size: CGFloat) -> Font {
-        return Font(UIFont.bitterBold(size: size) as CTFont)
+    static func bitterBold(ofSize size: CGFloat) -> Font {
+        return Font(UIFont.bitterBold(ofSize: size) as CTFont)
     }
+    
+    static func bitterFont(_ font: BitterFontEnum, ofSize size: CGFloat) -> Font {
+        switch font {
+        case .light:
+            return bitterLight(ofSize: size)
+        case .regular:
+            return bitterRegular(ofSize: size)
+        case .medium:
+            return bitterMedium(ofSize: size)
+        case .semiBold:
+            return bitterSemiBold(ofSize: size)
+        case .bold:
+            return bitterBold(ofSize: size)
+        }
+    }
+    
+    public static let bitterLargeTitle: Font = Font(UIFont.bitterLargeTitle as CTFont)
+    public static let bitterTitle: Font = Font(UIFont.bitterTitle as CTFont)
+    public static let bitterTitle2: Font = Font(UIFont.bitterTitle2 as CTFont)
+    public static let bitterTitle3: Font = Font(UIFont.bitterTitle3 as CTFont)
+    public static let bitterHeadline: Font = Font(UIFont.bitterHeadline as CTFont)
+    public static let bitterSubheadline: Font = Font(UIFont.bitterSubheadline as CTFont)
+    public static let bitterBody: Font = Font(UIFont.bitterBody as CTFont)
+    public static let bitterCallout: Font = Font(UIFont.bitterCallout as CTFont)
+    public static let bitterFootnote: Font = Font(UIFont.bitterFootnote as CTFont)
+    public static let bitterCaption: Font = Font(UIFont.bitterCaption as CTFont)
+    public static let bitterCaption2: Font = Font(UIFont.bitterCaption2 as CTFont)
 }
 
 //MARK: - UIFont
 extension UIFont {
-    static func bitterLight(size: CGFloat) -> UIFont {
+    
+    static func bitterLight(ofSize size: CGFloat) -> UIFont {
         return UIFont(name: "Bitter-Light", size: size) ?? .systemFont(ofSize: size)
     }
     
-    static func bitterRegular(size: CGFloat) -> UIFont {
+    static func bitterRegular(ofSize size: CGFloat) -> UIFont {
         return UIFont(name: "Bitter-Regular", size: size) ?? .systemFont(ofSize: size)
     }
     
-    static func bitterMedium(size: CGFloat) -> UIFont {
+    static func bitterMedium(ofSize size: CGFloat) -> UIFont {
         return UIFont(name: "Bitter-Medium", size: size) ?? .systemFont(ofSize: size)
     }
     
-    static func bitterSemiBold(size: CGFloat) -> UIFont {
+    static func bitterSemiBold(ofSize size: CGFloat) -> UIFont {
         return UIFont(name: "Bitter-SemiBold", size: size) ?? .systemFont(ofSize: size)
     }
     
-    static func bitterBold(size: CGFloat) -> UIFont {
+    static func bitterBold(ofSize size: CGFloat) -> UIFont {
         return UIFont(name: "Bitter-Bold", size: size) ?? .systemFont(ofSize: size)
     }
+    
+    static func bitterFont(_ font: BitterFontEnum, ofSize size: CGFloat) -> UIFont {
+        switch font {
+        case .light:
+            return bitterLight(ofSize: size)
+        case .regular:
+            return bitterRegular(ofSize: size)
+        case .medium:
+            return bitterMedium(ofSize: size)
+        case .semiBold:
+            return bitterSemiBold(ofSize: size)
+        case .bold:
+            return bitterBold(ofSize: size)
+        }
+    }
+    
+    public static let bitterLargeTitle: UIFont = .bitterFont(.medium, ofSize: 35)
+    public static let bitterTitle: UIFont = .bitterFont(.medium, ofSize: 28)
+    public static let bitterTitle2: UIFont = .bitterFont(.medium, ofSize: 22)
+    public static let bitterTitle3: UIFont = .bitterFont(.medium, ofSize: 20)
+    public static let bitterHeadline: UIFont = .bitterFont(.semiBold, ofSize: 17)
+    public static let bitterSubheadline: UIFont = .bitterFont(.regular, ofSize: 15)
+    public static let bitterBody: UIFont = .bitterFont(.regular, ofSize: 17)
+    public static let bitterCallout: UIFont = .bitterFont(.regular, ofSize: 15)
+    public static let bitterFootnote: UIFont = .bitterFont(.regular, ofSize: 13)
+    public static let bitterCaption: UIFont = .bitterFont(.regular, ofSize: 12)
+    public static let bitterCaption2: UIFont = .bitterFont(.regular, ofSize: 11)
 }

@@ -11,44 +11,48 @@ import Combine
 
 extension URLRequest {
     
+    var getURLString: String {
+        return self.url?.absoluteString ?? "URL not set"
+    }
+    
     //MARK: - Initializers
     init(ofHTTPMethod httpMethod: HTTPMethod,
          forAppEndpoint appEndpoint: AppEndpoints,
          withQueryParameters queryParameters: JSONKeyPair?) {
         self.init(url: URL(string: appEndpoint.getURLString())!)
-        getURLRequest(ofHTTPMethod: httpMethod,
-                                     forString: appEndpoint.getURLString(),
-                                     withQueryParameters: queryParameters)
+        setUpURLRequest(ofHTTPMethod: httpMethod,
+                        forString: appEndpoint.getURLString(),
+                        withQueryParameters: queryParameters)
     }
     
     init(ofHTTPMethod httpMethod: HTTPMethod,
-                              forAppEndpoint appEndpoint: AppEndpointsWithParamters,
-                              withQueryParameters queryParameters: JSONKeyPair?) {
+         forAppEndpoint appEndpoint: AppEndpointsWithParamters,
+         withQueryParameters queryParameters: JSONKeyPair?) {
         self.init(url: URL(string: appEndpoint.getURLString())!)
-        getURLRequest(ofHTTPMethod: httpMethod,
-                                     forString: appEndpoint.getURLString(),
-                                     withQueryParameters: queryParameters)
+        setUpURLRequest(ofHTTPMethod: httpMethod,
+                        forString: appEndpoint.getURLString(),
+                        withQueryParameters: queryParameters)
     }
     
-    private mutating func getURLRequest(ofHTTPMethod httpMethod: HTTPMethod,
-                        forString urlString: String,
-                        withQueryParameters queryParameters: JSONKeyPair?) {
+    private mutating func setUpURLRequest(ofHTTPMethod httpMethod: HTTPMethod,
+                                          forString urlString: String,
+                                          withQueryParameters queryParameters: JSONKeyPair?) {
+        printRequestDetailsWhenStarted(true)
         if let queryParameters {
             let urlComponents = getQueryItems(withParamters: queryParameters)
             if let url = urlComponents?.url {
                 self.url = url
             }
-        } else if let url = URL(string: urlString) {
-            self.url = url
+            print("Query Paramters:", queryParameters)
+            print("URL with Query Parameter:", self.getURLString)
         }
         self.httpMethod = httpMethod.rawValue
-        print("\nurl", self.url?.absoluteString ?? "URL not set for \(urlString)")
-        print("http method is", self.httpMethod ?? "http method not assigned")
+        print("HTTP Method:", self.httpMethod ?? "http method not assigned")
     }
     
     //MARK: - Query Parameters
     private func getQueryItems(withParamters parameters: JSONKeyPair) -> URLComponents? {
-        var urlComponents = URLComponents(string: self.url?.absoluteString ?? "")
+        var urlComponents = URLComponents(string: self.getURLString)
         urlComponents?.queryItems = []
         for (keyName, value) in parameters {
             urlComponents?.queryItems?.append(URLQueryItem(name: keyName, value: "\(value)"))
@@ -81,9 +85,9 @@ extension URLRequest {
     
     //MARK: - Parameters
     mutating func addParameters(_ parameters: JSONKeyPair?, withFileModel fileModel: [FileModel]? = nil, as parameterEncoding: ParameterEncoding) {
-        let urlString = self.url?.absoluteString ?? ""
+        let urlString = self.getURLString
         switch parameterEncoding {
-        case .JSONBody:
+        case .jsonBody:
             if let parameters {
                 do {
                     let jsonData = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
@@ -93,7 +97,7 @@ extension URLRequest {
                     print("error in \(urlString) with parameterEncoding \(parameterEncoding)", error.localizedDescription)
                 }
             }
-        case .URLFormEncoded:
+        case .urlFormEncoded:
             if let parameters {
                 let urlComponents = self.getQueryItems(withParamters: parameters)
                 let formEncodedString = urlComponents?.percentEncodedQuery
@@ -104,7 +108,7 @@ extension URLRequest {
                     print("error in \(urlString) with parameterEncoding \(parameterEncoding)")
                 }
             }
-        case .FormData:
+        case .formData:
             //https://stackoverflow.com/questions/26162616/upload-image-with-parameters-in-swift
             //https://orjpap.github.io/swift/http/ios/urlsession/2021/04/26/Multipart-Form-Requests.html
             //https://bhuvaneswarikittappa.medium.com/upload-image-to-server-using-multipart-form-data-in-ios-swift-5c4eb6de26e2
@@ -148,107 +152,107 @@ extension URLRequest {
             self.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             self.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
             
-            print("paramenterEncoding is", parameterEncoding)
-            print("http paramters", parameters ?? [:])
-            print("http body data", self.httpBody ?? Data())
+            print("ParamenterEncoding:", parameterEncoding)
+            print("Parameters:", parameters ?? [:])
+            print("Body Data:", self.httpBody ?? Data())
         }
     }
     
     //MARK: - Hit API
-    func hitApi<T: Decodable>(withURLRequest urlRequest: URLRequest?,
-                              decodingStruct: T.Type,
+    func hitApi<T: Decodable>(decodingStruct: T.Type,
                               outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
         
-        print("headers are", urlRequest?.allHTTPHeaderFields ?? [:])
-        let urlString = urlRequest?.url?.absoluteString ?? "URL not set"
-        print("url", urlString, "\n")
+        print("Headers:", self.allHTTPHeaderFields ?? [:])
+        printRequestDetailsWhenStarted(false)
         
         if Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet {
-            
-            if let urlRequest {
-                return URLSession
-                    .shared
-                    .dataTaskPublisher(for: urlRequest)
-                    .receive(on: DispatchQueue.main)
-                    .mapError { _ in
-                        self.printApiError(.MapError, inUrl: urlString)
-                        return APIError.MapError
+            return URLSession
+                .shared
+                .dataTaskPublisher(for: self)
+                .receive(on: DispatchQueue.main)
+                .mapError { _ in
+                    self.printApiError(.mapError)
+                    return APIError.mapError
+                }
+            //.decode(type: T.self, decoder: Singleton.sharedInstance.jsonDecoder)
+                .flatMap { data, response -> AnyPublisher<T, APIError> in
+                    printResponseDetailsWhenStarted(true)
+                    
+                    guard let response = response as? HTTPURLResponse else{
+                        return self.getApiErrorPublisher(.invalidHTTPURLResponse)
                     }
-                //.decode(type: T.self, decoder: Singleton.sharedInstance.jsonDecoder)
-                    .flatMap { data, response -> AnyPublisher<T, APIError> in
-                        guard let response = response as? HTTPURLResponse else{
-                            return self.getApiErrorPublisher(.InvalidHTTPURLResponse, inUrl: urlString)
+                    let jsonConvert = try? JSONSerialization.jsonObject(with: data, options: [])
+                    let json = jsonConvert as AnyObject
+                    #if DEBUG
+                    print("Json:")
+                    print(json)
+                    #endif
+                    switch response.statusCode {
+                    case 100...199:
+                        return self.getApiErrorPublisher(.informationalError(response.statusCode))
+                    case 200...299:
+                        #if DEBUG
+                        do {
+                            let _ = try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: data)
+                            printResponseDetailsWhenStarted(false)
+                        } catch let DecodingError.typeMismatch(type, context) {
+                            print("Type '\(type)' mismatch:", context.debugDescription)
+                            print("CodingPath:", context.codingPath)
+                        } catch let DecodingError.keyNotFound(key, context) {
+                            print("Key '\(key)' not found:", context.debugDescription)
+                            print("CodingPath:", context.codingPath)
+                        } catch let DecodingError.valueNotFound(value, context) {
+                            print("Value '\(value)' not found:", context.debugDescription)
+                            print("CodingPath:", context.codingPath)
+                        } catch let DecodingError.dataCorrupted(context) {
+                            print("Data Corrupted:", context.debugDescription)
+                        } catch {
+                            print(error.localizedDescription)
                         }
-                        let jsonConvert = try? JSONSerialization.jsonObject(with: data, options: [])
-                        let json = jsonConvert as AnyObject
-                        
-                        switch response.statusCode {
-                        case 100...199:
-                            return self.getApiErrorPublisher(.InformationalError(response.statusCode), inUrl: urlString)
-                        case 200...299:
-                            #if DEBUG
-                            do {
-                                let _ = try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: data)
-                            } catch let DecodingError.typeMismatch(type, context) {
-                                print("Type '\(type)' mismatch:", context.debugDescription)
-                                print("codingPath:", context.codingPath)
-                            } catch let DecodingError.keyNotFound(key, context) {
-                                print("Key '\(key)' not found:", context.debugDescription)
-                                print("codingPath:", context.codingPath)
-                            } catch let DecodingError.valueNotFound(value, context) {
-                                print("Value '\(value)' not found:", context.debugDescription)
-                                print("codingPath:", context.codingPath)
-                            } catch let DecodingError.dataCorrupted(context) {
-                                print("Data Corrupted:", context.debugDescription)
-                                print("codingPath:", context.codingPath)
-                             } catch {
-                                print(error.localizedDescription)
+                        #endif
+                        return Just(data)
+                            .decode(type: decodingStruct.self,
+                                    decoder: Singleton.sharedInstance.jsonDecoder)
+                            .mapError { _ in
+                                self.printApiError(.decodingError)
+                                return APIError.decodingError
                             }
-                            #endif
-                            return Just(data).decode(type: decodingStruct.self, decoder: Singleton.sharedInstance.jsonDecoder)
-                                .mapError { _ in
-                                    self.printApiError(.DecodingError, inUrl: urlString)
-                                    return APIError.DecodingError
-                                }
-                                .eraseToAnyPublisher()
-                        case 300...399:
-                            return self.getApiErrorPublisher(.RedirectionalError(response.statusCode), inUrl: urlString)
-                        case 400...499:
-                            let clientErrorEnum = ClientErrorsEnum(rawValue: response.statusCode) ?? .Other
-                            switch clientErrorEnum {
-                            case .Unauthorized:
-                                Singleton.sharedInstance.alerts.handle401StatueCode()
-                            case .BadRequest, .PaymentRequired, .Forbidden, .NotFound, .MethodNotAllowed, .NotAcceptable, .URITooLong, .Other:
-                                if let message = json["message"] as? String {
-                                    Singleton.sharedInstance.alerts.errorAlertWith(message: message)
-                                } else if let errorMessage = json["error"] as? String {
-                                    Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-                                } else if let errorMessages = json["error"] as? [String] {
-                                    var errorMessage = ""
-                                    for message in errorMessages {
-                                        if errorMessage != "" {
-                                            errorMessage = errorMessage + ", "
-                                        }
-                                        errorMessage = errorMessage + message
+                            .eraseToAnyPublisher()
+                    case 300...399:
+                        return self.getApiErrorPublisher(.redirectionalError(response.statusCode))
+                    case 400...499:
+                        let clientErrorEnum = ClientErrorsEnum(rawValue: response.statusCode) ?? .other
+                        switch clientErrorEnum {
+                        case .unauthorized:
+                            Singleton.sharedInstance.alerts.handle401StatueCode()
+                        case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
+                            if let message = json["message"] as? String {
+                                Singleton.sharedInstance.alerts.errorAlertWith(message: message)
+                            } else if let errorMessage = json["error"] as? String {
+                                Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
+                            } else if let errorMessages = json["error"] as? [String] {
+                                var errorMessage = ""
+                                for message in errorMessages {
+                                    if errorMessage != "" {
+                                        errorMessage = errorMessage + ", "
                                     }
-                                    Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-                                } else{
-                                    Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
+                                    errorMessage = errorMessage + message
                                 }
+                                Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
+                            } else{
+                                Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
                             }
-                            return self.getApiErrorPublisher(.ClientError(clientErrorEnum), inUrl: urlString)
-                        case 500...599:
-                            return self.getApiErrorPublisher(.ServerError(response.statusCode), inUrl: urlString)
-                        default:
-                            return Fail(error: APIError.Unknown(response.statusCode)).eraseToAnyPublisher()
                         }
-                    }.eraseToAnyPublisher()
-            } else {
-                return getApiErrorPublisher(.UrlNotValid, inUrl: urlString)
-            }
+                        return self.getApiErrorPublisher(.clientError(clientErrorEnum))
+                    case 500...599:
+                        return self.getApiErrorPublisher(.serverError(response.statusCode))
+                    default:
+                        return self.getApiErrorPublisher(.unknown(response.statusCode))
+                    }
+                }.eraseToAnyPublisher()
         } else {
             let monitor = NWPathMonitor()
-            let queue = DispatchQueue(label: urlString)
+            let queue = DispatchQueue(label: self.getURLString)
             monitor.pathUpdateHandler = { path in
                 DispatchQueue.main.async {
                     if path.status == .satisfied {
@@ -258,17 +262,36 @@ extension URLRequest {
                 }
             }
             monitor.start(queue: queue)
-            return getApiErrorPublisher(.InternetNotConnected, inUrl: urlString)
+            return getApiErrorPublisher(.internetNotConnected)
         }
     }
     
     //MARK: - Error Publishers
-    private func getApiErrorPublisher<T: Decodable>(_ apiError: APIError, inUrl urlString: String) -> AnyPublisher<T, APIError> {
-        printApiError(apiError, inUrl: urlString)
+    private func getApiErrorPublisher<T: Decodable>(_ apiError: APIError) -> AnyPublisher<T, APIError> {
+        printApiError(apiError)
         return Fail(error: apiError).eraseToAnyPublisher()
     }
     
-    private func printApiError(_ apiError: APIError, inUrl urlString: String) {
-        print("in api \(urlString) \(apiError)")
+    private func printApiError(_ apiError: APIError) {
+        print("APIError: \(apiError)")
+        printResponseDetailsWhenStarted(false)
+    }
+    
+    private func printRequestDetailsWhenStarted(_ started: Bool) {
+        if started {
+            print("\n-----URL Request Details Starts-----")
+            print("URL:", self.getURLString)
+        } else {
+            print("-----URL Request Details Ends-----\n")
+        }
+    }
+    
+    private func printResponseDetailsWhenStarted(_ started: Bool) {
+        if started {
+            print("\n-----URL Response Details Starts-----")
+            print("URL:", self.getURLString)
+        } else {
+            print("-----URL Response Details Ends-----\n")
+        }
     }
 }

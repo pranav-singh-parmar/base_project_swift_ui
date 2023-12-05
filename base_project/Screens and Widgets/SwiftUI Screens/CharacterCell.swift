@@ -20,17 +20,19 @@ struct CharacterCell: View {
             HStack(spacing: 6) {
                 KingfisherImageView(urlString: characterModel?.img ?? "",
                                     contentMode: .fill,
-                                    width: DeviceDimensions.width * 0.15,
-                                    height: DeviceDimensions.width * 0.15)
+                                    width: DeviceDimensions.width(withMultiplier: 0.15),
+                                    height: DeviceDimensions.width(withMultiplier: 0.15))
                 .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(characterModel?.name ?? "")
-                        .fontCustom(.SemiBold, size: 20)
+                        .font(.bitterBody)
+                        //.fontCustom(.SemiBold, size: 20)
                         .foregroundColor(.blackColor)
                     
                     Text(characterModel?.portrayed ?? "")
-                        .fontCustom(.Regular, size: 15)
+                        .font(.bitterBody)
+                        //.fontCustom(.Regular, size: 15)
                         .foregroundColor(.blackColor)
                 }
             }

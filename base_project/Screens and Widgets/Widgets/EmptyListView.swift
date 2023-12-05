@@ -26,7 +26,7 @@ struct EmptyListView: View {
                 Spacer()
                 VStack(spacing: 20) {
                     Text(text)
-                        .fontCustom(.Regular, size: 18)
+                        .font(.bitterBody)
                         .foregroundColor(.blackColor)
                 }
                 Spacer()

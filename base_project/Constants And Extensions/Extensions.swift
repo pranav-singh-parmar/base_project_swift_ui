@@ -41,24 +41,6 @@ extension View {
     }
 }
 
-//MARK: - Text
-extension Text {
-    func fontCustom(_ font: FontEnum, size: CGFloat) -> Text {
-        switch font {
-        case .Light:
-            return self.font(.bitterLight(size: size))
-        case .Regular:
-            return self.font(.bitterRegular(size: size))
-        case .Medium:
-            return self.font(.bitterMedium(size: size))
-        case .SemiBold:
-            return self.font(.bitterMedium(size: size))
-        case .Bold:
-            return self.font(.bitterBold(size: size))
-        }
-    }
-}
-
 //MARK: - UIColor
 extension UIColor {
     convenience init(hexString: String) {

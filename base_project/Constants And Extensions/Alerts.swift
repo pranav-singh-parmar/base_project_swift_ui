@@ -13,8 +13,8 @@ class Alerts {
     private let attributedTitleKey = "attributedTitle"
     private let attributedMessageKey = "attributedMessage"
     
-    private let titleAttributes = [NSAttributedString.Key.font: UIFont.bitterMedium(size: 17), NSAttributedString.Key.foregroundColor: UIColor.blackColor]
-    private let messageAttributes = [NSAttributedString.Key.font: UIFont.bitterRegular(size: 14), NSAttributedString.Key.foregroundColor: UIColor.blackColor]
+    private let titleAttributes = [NSAttributedString.Key.font: UIFont.bitterHeadline, NSAttributedString.Key.foregroundColor: UIColor.blackColor]
+    private let messageAttributes = [NSAttributedString.Key.font: UIFont.bitterFootnote, NSAttributedString.Key.foregroundColor: UIColor.blackColor]
     
     func getAlertController(ofStyle style: UIAlertController.Style, withTitle title: String?, andMessage message: String?) -> UIAlertController {
         let alert = UIAlertController(title: "", message: "", preferredStyle: style)
