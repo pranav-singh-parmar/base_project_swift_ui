@@ -11,32 +11,39 @@ import Combine
 
 extension URLRequest {
     
+    private static let apiErrorTAG = "APIError:"
+    
     var getURLString: String {
         return self.url?.absoluteString ?? "URL not set"
     }
     
     //MARK: - Initializers
-    init(ofHTTPMethod httpMethod: HTTPMethod,
-         forAppEndpoint appEndpoint: AppEndpoints,
-         withQueryParameters queryParameters: JSONKeyPair?) {
-        self.init(url: URL(string: appEndpoint.getURLString())!)
-        setUpURLRequest(ofHTTPMethod: httpMethod,
-                        forString: appEndpoint.getURLString(),
-                        withQueryParameters: queryParameters)
+    init?(ofHTTPMethod httpMethod: HTTPMethod,
+          forAppEndpoint appEndpoint: AppEndpoints,
+          withQueryParameters queryParameters: JSONKeyPair?) {
+        self.init(withHTTPMethod: httpMethod,
+                  forAppEndpoint: appEndpoint,
+                  withQueryParameters: queryParameters)
     }
     
-    init(ofHTTPMethod httpMethod: HTTPMethod,
+    init?(ofHTTPMethod httpMethod: HTTPMethod,
          forAppEndpoint appEndpoint: AppEndpointsWithParamters,
          withQueryParameters queryParameters: JSONKeyPair?) {
-        self.init(url: URL(string: appEndpoint.getURLString())!)
-        setUpURLRequest(ofHTTPMethod: httpMethod,
-                        forString: appEndpoint.getURLString(),
-                        withQueryParameters: queryParameters)
+        self.init(withHTTPMethod: httpMethod,
+                  forAppEndpoint: appEndpoint,
+                  withQueryParameters: queryParameters)
     }
     
-    private mutating func setUpURLRequest(ofHTTPMethod httpMethod: HTTPMethod,
-                                          forString urlString: String,
-                                          withQueryParameters queryParameters: JSONKeyPair?) {
+    private init?(withHTTPMethod httpMethod: HTTPMethod,
+                  forAppEndpoint appEndpoint: EndpointsProtocol,
+                  withQueryParameters queryParameters: JSONKeyPair?) {
+        let urlString = appEndpoint.getURLString()
+        guard let url = URL(string: urlString) else {
+            print(URLRequest.apiErrorTAG, "Cannot Initiate URL with String", urlString)
+            return nil
+        }
+        
+        self.init(url: url)
         printRequestDetailsWhenStarted(true)
         if let queryParameters {
             let urlComponents = getQueryItems(withParamters: queryParameters)
@@ -273,8 +280,10 @@ extension URLRequest {
     }
     
     private func printApiError(_ apiError: APIError) {
-        print("APIError: \(apiError)")
-        printResponseDetailsWhenStarted(false)
+        print(URLRequest.apiErrorTAG, "\(apiError)")
+        if apiError.localizedDescription != APIError.internetNotConnected.localizedDescription {
+            printResponseDetailsWhenStarted(false)
+        }
     }
     
     private func printRequestDetailsWhenStarted(_ started: Bool) {

@@ -42,9 +42,9 @@ class CharactersViewModel: ObservableObject {
                                     forAppEndpoint: .characters,
                                     withQueryParameters: params)
         
-        urlRequest.addHeaders()
+        urlRequest?.addHeaders()
         
-        urlRequest.hitApi(decodingStruct: Characters.self) { [weak self] in
+        urlRequest?.hitApi(decodingStruct: Characters.self) { [weak self] in
             self?.getCharacters(clearList: clearList)
         }
         .sink{ [weak self] completion in
