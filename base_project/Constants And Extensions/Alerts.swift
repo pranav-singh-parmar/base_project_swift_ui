@@ -24,7 +24,7 @@ class Alerts {
         //alert.view.alpha = 0.6
         //alert.view.layer.cornerRadius = 15
         
-        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        let vc = UIApplication.shared.getTopViewController()
         vc?.present(alert, animated: true, completion: nil)
         
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + seconds) {
@@ -59,7 +59,7 @@ class Alerts {
 
         alert.addAction(UIAlertAction(title: defaultButtonTitle, style: UIAlertAction.Style.default, handler: defaultButtonAction))
 
-        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        let vc = UIApplication.shared.getTopViewController()
         vc?.present(alert, animated: true, completion: nil)
     }
     
@@ -73,7 +73,7 @@ class Alerts {
         alert.addAction(UIAlertAction(title: defaultButtonTitle, style: UIAlertAction.Style.default, handler: defaultButtonAction))
         alert.addAction(UIAlertAction(title: cancelButtonTitle, style: UIAlertAction.Style.cancel, handler: cancelButtonAction))
 
-        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        let vc = UIApplication.shared.getTopViewController()
         vc?.present(alert, animated: true, completion: nil)
     }
     
@@ -87,7 +87,7 @@ class Alerts {
         alert.addAction(UIAlertAction(title: defaultButtonOneTitle, style: UIAlertAction.Style.default, handler: defaultButtonOneAction))
         alert.addAction(UIAlertAction(title: defaultButtonTwoTitle, style: UIAlertAction.Style.default, handler: defaultButtonTwoAction))
 
-        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        let vc = UIApplication.shared.getTopViewController()
         vc?.present(alert, animated: true, completion: nil)
     }
     
@@ -104,7 +104,7 @@ class Alerts {
         alert.addAction(UIAlertAction(title: secondDefaultButtonTitle, style: UIAlertAction.Style.default, handler: secondDefaultButtonAction))
         alert.addAction(UIAlertAction(title: cancelButtonTitle, style: UIAlertAction.Style.cancel, handler: cancelButtonAction))
 
-        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        let vc = UIApplication.shared.getTopViewController()
         vc?.present(alert, animated: true, completion: nil)
     }
     
@@ -118,7 +118,7 @@ class Alerts {
             outputBlock()
         })
 
-        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        let vc = UIApplication.shared.getTopViewController()
         vc?.present(alert, animated: true, completion: nil)
     }
 
@@ -132,7 +132,7 @@ class Alerts {
         }))
 
 
-        let vc = Singleton.sharedInstance.generalFunctions.getTopViewController()
+        let vc = UIApplication.shared.getTopViewController()
         vc?.present(alert, animated: true, completion: nil)
     }
 }

@@ -8,19 +8,17 @@
 import Foundation
 import SwiftUI
 
-//MARK: - DeviceDimensions
-struct DeviceDimensions {
-    static func width(withMultiplier multiplier: CGFloat = 1) -> CGFloat {
-        return UIScreen.main.bounds.size.width * multiplier
-    }
-    
-    static func height(withMultiplier multiplier: CGFloat = 1) -> CGFloat {
-        return UIScreen.main.bounds.size.height * multiplier
-    }
+//MARK: - AppInfo
+struct AppInfo {
+    static let bundleIdentifier = Bundle.main.bundleIdentifier
+    // static let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
+    static let appCurrentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    static let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
+    static var appId = 0
 }
 
 class AppURLs {
-    static let baseURL = "https://www.breakingbadapi.com/"
+    private static let baseURL = "https://www.breakingbadapi.com/"
     
     static func getAPIURL() -> String {
         return baseURL + "api/"
@@ -31,61 +29,6 @@ class AppURLs {
     //    }
 }
 
-//MARK: - AppInfo
-struct AppInfo {
-    static let bundleIdentifier = Bundle.main.bundleIdentifier // .infoDictionary?["CFBundleIdentifier"] as? String
-    // static let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
-    static let appCurrentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    static let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
-    static var appId = 0
-}
-
-//MARK: - enums
-enum HTTPMethod: String {
-    case get, post, put, delete
-}
-
-enum ParameterEncoding: String {
-    case jsonBody, urlFormEncoded, formData
-}
-
-//https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses
-//Informational responses (100-199)
-//Successful responses (200–299)
-//Redirection messages (300–399)
-//Client error responses (400–499)
-//Server error responses (500–599)
-enum APIError: Error {
-    case internetNotConnected,
-         mapError,
-         invalidHTTPURLResponse,
-         informationalError(Int),
-         decodingError,
-         redirectionalError(Int),
-         clientError(ClientErrorsEnum),
-         serverError(Int),
-         unknown(Int)
-}
-
-enum ClientErrorsEnum: Int {
-    case badRequest = 400,
-         unauthorized = 401,
-         paymentRequired = 402,
-         forbidden = 403,
-         notFound = 404,
-         methodNotAllowed = 405,
-         notAcceptable = 406,
-         uriTooLong = 414,
-         other
-}
-
-enum ApiStatus {
-    case notHitOnce, isBeingHit, apiHit, apiHitWithError
-}
-
-enum BitterFontEnum {
-    case light, regular, medium, semiBold, bold
-}
 
 //MARK: - App Colors
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)

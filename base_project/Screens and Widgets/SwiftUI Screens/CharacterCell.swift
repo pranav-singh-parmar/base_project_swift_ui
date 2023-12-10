@@ -18,7 +18,7 @@ struct CharacterCell: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
-                let imageDimension = DeviceDimensions.width(withMultiplier: 0.15)
+                let imageDimension = UIScreen.main.width(withMultiplier: 0.15)
                 KingfisherImageView(urlString: characterModel?.img ?? "",
                                     viewModifier: NetworkImageModifier(contentMode: .fill,
                                                                       width: imageDimension,

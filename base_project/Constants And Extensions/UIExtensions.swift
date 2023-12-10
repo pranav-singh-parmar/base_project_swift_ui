@@ -1,5 +1,5 @@
 //
-//  Extensions.swift
+//  UIExtensions.swift
 //  base_project
 //
 //  Created by Pranav Singh on 01/08/22.
@@ -7,7 +7,17 @@
 
 import Foundation
 import SwiftUI
-import Combine
+
+//MARK: - UIScreen
+extension UIScreen {
+    func width(withMultiplier multiplier: CGFloat = 1) -> CGFloat {
+        return self.bounds.size.width * multiplier
+    }
+    
+    func height(withMultiplier multiplier: CGFloat = 1) -> CGFloat {
+        return self.bounds.size.height * multiplier
+    }
+}
 
 //MARK: - UIApplication
 extension UIApplication {
@@ -21,17 +31,11 @@ extension UIApplication {
     }
     
     var getNavBarHeight: CGFloat {
-        if let vc = getTopViewController() {
-            return vc.navigationController?.navigationBar.bounds.height ?? 0
-        }
-        return 0
+        return getTopViewController()?.getNavBarHeight ?? 0
     }
     
     var getStatusBarHeight: CGFloat {
-        if let window = getKeyWindow {
-            return window.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
-        }
-        return 0
+        return getKeyWindow?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
     }
     
     func getTopViewController(_ baseVC: UIViewController? = UIApplication.shared.getKeyWindow?.rootViewController) -> UIViewController? {
@@ -68,79 +72,14 @@ extension UIApplication: UIGestureRecognizerDelegate {
     }
 }
 
-//MARK: - Data
-extension Data {
-    mutating func appendString(_ string: String) {
-        if let data = string.data(using: .utf8) {
-            append(data)
-        }
-    }
+//MARK: - UIViewController
+extension UIViewController {
     
-    func toStruct<T: Decodable>(_ decodingStruct: T.Type) -> T? {
-        do {
-            return try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: self)
-        } catch let DecodingError.typeMismatch(type, context) {
-            print("Type '\(type)' mismatch:", context.debugDescription)
-            print("CodingPath:", context.codingPath)
-        } catch let DecodingError.keyNotFound(key, context) {
-            print("Key '\(key)' not found:", context.debugDescription)
-            print("CodingPath:", context.codingPath)
-        } catch let DecodingError.valueNotFound(value, context) {
-            print("Value '\(value)' not found:", context.debugDescription)
-            print("CodingPath:", context.codingPath)
-        } catch let DecodingError.dataCorrupted(context) {
-            print("Data Corrupted:", context.debugDescription)
-        } catch {
-            print(error.localizedDescription)
-        }
-        return nil
+    var getNavBarHeight: CGFloat {
+        return self.navigationController?.navigationBar.bounds.height ?? 0
     }
 }
 
-//MARK: - JSONKeyPair
-typealias JSONKeyPair = [String: Any]
-
-extension JSONKeyPair {
-    func toStruct<T: Decodable>(_ decodingStruct: T.Type) -> T? {
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
-            let model = jsonData.toStruct(decodingStruct)
-            return model
-        } catch {
-            print("decoding error", error.localizedDescription)
-        }
-        return nil
-    }
-}
-
-//MARK: - Encodable
-extension Encodable {
-    func toData() -> Data? {
-        do {
-            let jsonData = try Singleton.sharedInstance.jsonEncoder.encode(self)
-            return jsonData
-        } catch { print(error.localizedDescription) }
-        return nil
-    }
-    
-    func toJsonObject() -> Any? {
-        if let jsonData = self.toData() {
-            do {
-                let json = try JSONSerialization.jsonObject(with: jsonData, options: [])
-                return json
-            } catch { print(error.localizedDescription) }
-        }
-        return nil
-    }
-    
-    func toJsonKeyPair() -> JSONKeyPair? {
-        if let jsonObject = self.toJsonObject(),
-           let parameter = jsonObject as? JSONKeyPair {
-            return parameter
-        }
-        return nil
-    }
-}
 
 //MARK: - UIColor
 extension UIColor {
@@ -213,15 +152,5 @@ extension View {
     func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
         if condition { transform(self) }
         else { self }
-    }
-}
-
-//MARK: - Set<AnyCancellable>
-typealias AnyCancellablesSet = Set<AnyCancellable>
-
-extension AnyCancellablesSet {
-    mutating func cancelAll() {
-        forEach { $0.cancel() }
-        removeAll()
     }
 }
