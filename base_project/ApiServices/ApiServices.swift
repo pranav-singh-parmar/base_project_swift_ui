@@ -44,7 +44,7 @@ extension URLRequest {
         }
         
         self.init(url: url)
-        printRequestDetailsWhenStarted(true)
+        printRequestDetailsTag(isStarted: true)
         if let queryParameters {
             let urlComponents = getQueryItems(withParamters: queryParameters)
             if let url = urlComponents?.url {
@@ -170,7 +170,7 @@ extension URLRequest {
                               outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
         
         print("Headers:", self.allHTTPHeaderFields ?? [:])
-        printRequestDetailsWhenStarted(false)
+        printRequestDetailsTag(isStarted: false)
         
         if Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet {
             return URLSession
@@ -183,7 +183,7 @@ extension URLRequest {
                 }
             //.decode(type: T.self, decoder: Singleton.sharedInstance.jsonDecoder)
                 .flatMap { data, response -> AnyPublisher<T, APIError> in
-                    printResponseDetailsWhenStarted(true)
+                    printResponseDetailsTag(isStarted: true)
                     
                     guard let response = response as? HTTPURLResponse else{
                         return self.getApiErrorPublisher(.invalidHTTPURLResponse)
@@ -191,7 +191,7 @@ extension URLRequest {
                     let jsonConvert = try? JSONSerialization.jsonObject(with: data, options: [])
                     let json = jsonConvert as AnyObject
                     #if DEBUG
-                    print("Json:")
+                    print("Json Response:")
                     print(json)
                     #endif
                     switch response.statusCode {
@@ -199,22 +199,8 @@ extension URLRequest {
                         return self.getApiErrorPublisher(.informationalError(response.statusCode))
                     case 200...299:
                         #if DEBUG
-                        do {
-                            let _ = try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: data)
-                            printResponseDetailsWhenStarted(false)
-                        } catch let DecodingError.typeMismatch(type, context) {
-                            print("Type '\(type)' mismatch:", context.debugDescription)
-                            print("CodingPath:", context.codingPath)
-                        } catch let DecodingError.keyNotFound(key, context) {
-                            print("Key '\(key)' not found:", context.debugDescription)
-                            print("CodingPath:", context.codingPath)
-                        } catch let DecodingError.valueNotFound(value, context) {
-                            print("Value '\(value)' not found:", context.debugDescription)
-                            print("CodingPath:", context.codingPath)
-                        } catch let DecodingError.dataCorrupted(context) {
-                            print("Data Corrupted:", context.debugDescription)
-                        } catch {
-                            print(error.localizedDescription)
+                        if let _ = data.toStruct(decodingStruct) {
+                            printResponseDetailsTag(isStarted: false)
                         }
                         #endif
                         return Just(data)
@@ -282,12 +268,12 @@ extension URLRequest {
     private func printApiError(_ apiError: APIError) {
         print(URLRequest.apiErrorTAG, "\(apiError)")
         if apiError.localizedDescription != APIError.internetNotConnected.localizedDescription {
-            printResponseDetailsWhenStarted(false)
+            printResponseDetailsTag(isStarted: false)
         }
     }
     
-    private func printRequestDetailsWhenStarted(_ started: Bool) {
-        if started {
+    private func printRequestDetailsTag(isStarted: Bool) {
+        if isStarted {
             print("\n-----URL Request Details Starts-----")
             print("URL:", self.getURLString)
         } else {
@@ -295,8 +281,8 @@ extension URLRequest {
         }
     }
     
-    private func printResponseDetailsWhenStarted(_ started: Bool) {
-        if started {
+    private func printResponseDetailsTag(isStarted: Bool) {
+        if isStarted {
             print("\n-----URL Response Details Starts-----")
             print("URL:", self.getURLString)
         } else {

@@ -11,33 +11,134 @@ import Combine
 
 //MARK: - UIApplication
 extension UIApplication {
+    
+    var getKeyWindow: UIWindow? {
+        if #available(iOS 15, *) {
+            return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow
+        } else {
+            return UIApplication.shared.windows.first
+        }
+    }
+    
+    var getNavBarHeight: CGFloat {
+        if let vc = getTopViewController() {
+            return vc.navigationController?.navigationBar.bounds.height ?? 0
+        }
+        return 0
+    }
+    
+    var getStatusBarHeight: CGFloat {
+        if let window = getKeyWindow {
+            return window.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        }
+        return 0
+    }
+    
+    func getTopViewController(_ baseVC: UIViewController? = UIApplication.shared.getKeyWindow?.rootViewController) -> UIViewController? {
+        if let navigationController = baseVC as? UINavigationController {
+            return getTopViewController(navigationController.visibleViewController)
+        }
+        if let tabBarController = baseVC as? UITabBarController {
+            return getTopViewController(tabBarController.selectedViewController)
+        }
+        if let presented = baseVC?.presentedViewController {
+            return getTopViewController(presented)
+        }
+        return baseVC
+    }
+}
+
+//MARK: - UIApplication handle tap gesture
+extension UIApplication: UIGestureRecognizerDelegate {
     func endEditing() {
         sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
     func addTapGestureRecognizer() {
-        guard let window = Singleton.sharedInstance.generalFunctions.getTopWindow() else { return }
+        guard let window = UIApplication.shared.getKeyWindow else { return }
         let tapGesture = UITapGestureRecognizer(target: window, action: #selector(UIView.endEditing))
         tapGesture.requiresExclusiveTouchType = false
         tapGesture.cancelsTouchesInView = false
         tapGesture.delegate = self
         window.addGestureRecognizer(tapGesture)
     }
-}
-
-//MARK: - UIGestureRecognizerDelegate
-extension UIApplication: UIGestureRecognizerDelegate {
+    
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true // set to `false` if you don't want to detect tap during other gestures
     }
 }
 
-//MARK: - View
-extension View {
-    @ViewBuilder
-    func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
-        if condition { transform(self) }
-        else { self }
+//MARK: - Data
+extension Data {
+    mutating func appendString(_ string: String) {
+        if let data = string.data(using: .utf8) {
+            append(data)
+        }
+    }
+    
+    func toStruct<T: Decodable>(_ decodingStruct: T.Type) -> T? {
+        do {
+            return try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: self)
+        } catch let DecodingError.typeMismatch(type, context) {
+            print("Type '\(type)' mismatch:", context.debugDescription)
+            print("CodingPath:", context.codingPath)
+        } catch let DecodingError.keyNotFound(key, context) {
+            print("Key '\(key)' not found:", context.debugDescription)
+            print("CodingPath:", context.codingPath)
+        } catch let DecodingError.valueNotFound(value, context) {
+            print("Value '\(value)' not found:", context.debugDescription)
+            print("CodingPath:", context.codingPath)
+        } catch let DecodingError.dataCorrupted(context) {
+            print("Data Corrupted:", context.debugDescription)
+        } catch {
+            print(error.localizedDescription)
+        }
+        return nil
+    }
+}
+
+//MARK: - JSONKeyPair
+typealias JSONKeyPair = [String: Any]
+
+extension JSONKeyPair {
+    func toStruct<T: Decodable>(_ decodingStruct: T.Type) -> T? {
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
+            let model = jsonData.toStruct(decodingStruct)
+            return model
+        } catch {
+            print("decoding error", error.localizedDescription)
+        }
+        return nil
+    }
+}
+
+//MARK: - Encodable
+extension Encodable {
+    func toData() -> Data? {
+        do {
+            let jsonData = try Singleton.sharedInstance.jsonEncoder.encode(self)
+            return jsonData
+        } catch { print(error.localizedDescription) }
+        return nil
+    }
+    
+    func toJsonObject() -> Any? {
+        if let jsonData = self.toData() {
+            do {
+                let json = try JSONSerialization.jsonObject(with: jsonData, options: [])
+                return json
+            } catch { print(error.localizedDescription) }
+        }
+        return nil
+    }
+    
+    func toJsonKeyPair() -> JSONKeyPair? {
+        if let jsonObject = self.toJsonObject(),
+           let parameter = jsonObject as? JSONKeyPair {
+            return parameter
+        }
+        return nil
     }
 }
 
@@ -106,6 +207,15 @@ extension Color {
     }
 }
 
+//MARK: - View
+extension View {
+    @ViewBuilder
+    func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
+        if condition { transform(self) }
+        else { self }
+    }
+}
+
 //MARK: - Set<AnyCancellable>
 typealias AnyCancellablesSet = Set<AnyCancellable>
 
@@ -113,14 +223,5 @@ extension AnyCancellablesSet {
     mutating func cancelAll() {
         forEach { $0.cancel() }
         removeAll()
-    }
-}
-
-//MARK: - Data
-extension Data {
-    mutating func appendString(_ string: String) {
-        if let data = string.data(using: .utf8) {
-            append(data)
-        }
     }
 }

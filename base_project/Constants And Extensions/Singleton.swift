@@ -20,5 +20,7 @@ class Singleton {
     
     let appEnvironmentObject = AppEnvironmentObject()
     
+    let jsonEncoder = JSONEncoder()
+    
     let jsonDecoder = JSONDecoder()
 }

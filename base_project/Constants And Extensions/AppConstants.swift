@@ -33,7 +33,8 @@ class AppURLs {
 
 //MARK: - AppInfo
 struct AppInfo {
-    static let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
+    static let bundleIdentifier = Bundle.main.bundleIdentifier // .infoDictionary?["CFBundleIdentifier"] as? String
+    // static let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
     static let appCurrentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     static let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
     static var appId = 0
@@ -45,15 +46,6 @@ enum HTTPMethod: String {
 }
 
 enum ParameterEncoding: String {
-//    init?(rawValue: String) {
-//        <#code#>
-//    }
-//    
-//    var rawValue: String
-//    
-//    typealias RawValue = String
-//    
-//    case JSONBody = "", URLFormEncoded = "", FormData(String) = ""
     case jsonBody, urlFormEncoded, formData
 }
 
