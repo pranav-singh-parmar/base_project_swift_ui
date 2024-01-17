@@ -8,6 +8,11 @@
 import Foundation
 import SwiftUI
 
+//MARK: - Enums
+enum BitterFontEnum {
+    case light, regular, medium, semiBold, bold
+}
+
 //MARK: - AppInfo
 struct AppInfo {
     static let bundleIdentifier = Bundle.main.bundleIdentifier
@@ -17,6 +22,7 @@ struct AppInfo {
     static var appId = 0
 }
 
+//MARK: - AppURLs
 class AppURLs {
     private static let baseURL = "https://www.breakingbadapi.com/"
     

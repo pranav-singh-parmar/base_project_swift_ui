@@ -16,7 +16,7 @@ extension UIAlertController {
                      andMessage message: String?) {
         self.init(title: "", message: "", preferredStyle: style)
         self.setTitle(title)
-        self.setMessage(title)
+        self.setMessage(message)
     }
     
     private func setTitle(_ title: String?) {

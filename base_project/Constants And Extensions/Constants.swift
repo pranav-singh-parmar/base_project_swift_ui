@@ -7,9 +7,7 @@
 
 import Foundation
 
-
-
-//MARK: - enums
+//MARK: - Enums
 enum HTTPMethod: String {
     case get, post, put, delete
 }
@@ -50,8 +48,4 @@ enum ClientErrorsEnum: Int {
 
 enum ApiStatus {
     case notHitOnce, isBeingHit, apiHit, apiHitWithError
-}
-
-enum BitterFontEnum {
-    case light, regular, medium, semiBold, bold
 }
