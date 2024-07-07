@@ -13,29 +13,6 @@ enum BitterFontEnum {
     case light, regular, medium, semiBold, bold
 }
 
-//MARK: - AppInfo
-struct AppInfo {
-    static let bundleIdentifier = Bundle.main.bundleIdentifier
-    // static let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
-    static let appCurrentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    static let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
-    static var appId = 0
-}
-
-//MARK: - AppURLs
-class AppURLs {
-    private static let baseURL = "https://www.breakingbadapi.com/"
-    
-    static func getAPIURL() -> String {
-        return baseURL + "api/"
-    }
-    
-    //    func updateAPIURL(_ urlString: String) {
-    //        apiURL = urlString
-    //    }
-}
-
-
 //MARK: - App Colors
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Color {

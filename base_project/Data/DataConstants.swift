@@ -1,8 +1,8 @@
 //
-//  Constants.swift
+//  DataConstants.swift
 //  base_project
 //
-//  Created by Pranav Singh on 10/12/23.
+//  Created by Pranav Singh on 07/07/24.
 //
 
 import Foundation
@@ -44,8 +44,4 @@ enum ClientErrorsEnum: Int {
          notAcceptable = 406,
          uriTooLong = 414,
          other
-}
-
-enum ApiStatus {
-    case notHitOnce, isBeingHit, apiHit, apiHitWithError
 }

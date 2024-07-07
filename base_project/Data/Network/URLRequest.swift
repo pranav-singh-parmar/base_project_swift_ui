@@ -159,7 +159,7 @@ extension URLRequest {
             self.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             self.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
             
-            print("ParamenterEncoding:", parameterEncoding)
+            print("ParameterEncoding:", parameterEncoding)
             print("Parameters:", parameters ?? [:])
             print("Body Data:", self.httpBody ?? Data())
         }

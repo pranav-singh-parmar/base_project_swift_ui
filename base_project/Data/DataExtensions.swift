@@ -1,28 +1,11 @@
 //
-//  NonUIExtensions.swift
+//  DataExtensions.swift
 //  base_project
 //
-//  Created by Pranav Singh on 10/12/23.
+//  Created by Pranav Singh on 07/07/24.
 //
 
 import Foundation
-import Combine
-
-//MARK: - Bundle
-extension Bundle {
-    var getBundleIdentifier: String? {
-        return Bundle.main.bundleIdentifier
-        //return Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
-    }
-    
-    var appCurrentVersion: String? {
-        return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    }
-    
-    var appName: String? {
-        return Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
-    }
-}
 
 //MARK: - Data
 extension Data {
@@ -95,15 +78,5 @@ extension Encodable {
             return parameter
         }
         return nil
-    }
-}
-
-//MARK: - Set<AnyCancellable>
-typealias AnyCancellablesSet = Set<AnyCancellable>
-
-extension AnyCancellablesSet {
-    mutating func cancelAll() {
-        forEach { $0.cancel() }
-        removeAll()
     }
 }
