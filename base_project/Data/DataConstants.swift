@@ -22,26 +22,60 @@ enum ParameterEncoding: String {
 //Redirection messages (300–399)
 //Client error responses (400–499)
 //Server error responses (500–599)
-enum APIError: Error {
+enum APIRequestError: Error {
     case internetNotConnected,
-         mapError,
+         invalidURL,
          invalidHTTPURLResponse,
+         invalidMimeType,
          informationalError(Int),
-         decodingError,
          redirectionalError(Int),
-         clientError(ClientErrorsEnum),
+         clientError(ClientErrorsEnum, Int),
          serverError(Int),
          unknown(Int)
 }
 
-enum ClientErrorsEnum: Int {
-    case badRequest = 400,
-         unauthorized = 401,
-         paymentRequired = 402,
-         forbidden = 403,
-         notFound = 404,
-         methodNotAllowed = 405,
-         notAcceptable = 406,
-         uriTooLong = 414,
+enum ClientErrorsEnum {
+    case badRequest,
+         unauthorized,
+         paymentRequired,
+         forbidden,
+         notFound,
+         methodNotAllowed,
+         notAcceptable,
+         uriTooLong,
          other
+    
+    static func getCorrespondingValue(forStatusCode statusCode: Int) -> ClientErrorsEnum {
+        switch statusCode {
+        case 400:
+            return .badRequest
+        case 401:
+            return .unauthorized
+        case 402:
+            return .paymentRequired
+        case 403:
+            return .forbidden
+        case 404:
+            return .notFound
+        case 405:
+            return .methodNotAllowed
+        case 406:
+            return .notAcceptable
+        case 414:
+            return .uriTooLong
+        default:
+            return .other
+        }
+    }
+}
+
+enum DataSourceError: Error {
+    case apiRequestError(APIRequestError),
+         invalidURL,
+         decodingError,
+         unknown
+}
+
+enum RepositoryError: Error {
+    case dataSourceError(DataSourceError)
 }

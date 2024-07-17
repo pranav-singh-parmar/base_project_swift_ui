@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1214C9402C4138EF00551FF9 /* CharactersDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1214C93F2C4138EF00551FF9 /* CharactersDataSource.swift */; };
 		1553B0962926861A0079E9EB /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1553B0952926861A0079E9EB /* Endpoints.swift */; };
 		156BB88128A5221A000182DB /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88028A5221A000182DB /* Colors.xcassets */; };
 		156BB88828A52659000182DB /* Bitter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88328A52659000182DB /* Bitter-SemiBold.ttf */; };
@@ -14,8 +15,6 @@
 		156BB88A28A52659000182DB /* Bitter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88528A52659000182DB /* Bitter-Medium.ttf */; };
 		156BB88B28A52659000182DB /* Bitter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88628A52659000182DB /* Bitter-Regular.ttf */; };
 		156BB88C28A52659000182DB /* Bitter-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 156BB88728A52659000182DB /* Bitter-Light.ttf */; };
-		157736022B261736009A45BF /* DomainExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157736012B261736009A45BF /* DomainExtensions.swift */; };
-		157736082B261AD9009A45BF /* DomainConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157736072B261AD9009A45BF /* DomainConstants.swift */; };
 		157A1124289AC7890035636F /* CharactersModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157A1123289AC7890035636F /* CharactersModel.swift */; };
 		157A1D9728BD129500DE0678 /* FileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157A1D9628BD129500DE0678 /* FileModel.swift */; };
 		1581A01B2898263100CD1DF0 /* base_projectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1581A01A2898263100CD1DF0 /* base_projectApp.swift */; };
@@ -73,6 +72,7 @@
 /* Begin PBXFileReference section */
 		08A4412AEB9CFF41E8531F21 /* Pods_base_project.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_base_project.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C47C2D1B4B8ACFA7722EA30 /* Pods-base_project.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-base_project.debug.xcconfig"; path = "Target Support Files/Pods-base_project/Pods-base_project.debug.xcconfig"; sourceTree = "<group>"; };
+		1214C93F2C4138EF00551FF9 /* CharactersDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersDataSource.swift; sourceTree = "<group>"; };
 		1553B0952926861A0079E9EB /* Endpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoints.swift; sourceTree = "<group>"; };
 		156BB88028A5221A000182DB /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		156BB88328A52659000182DB /* Bitter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -81,8 +81,6 @@
 		156BB88628A52659000182DB /* Bitter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-Regular.ttf"; sourceTree = "<group>"; };
 		156BB88728A52659000182DB /* Bitter-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Bitter-Light.ttf"; sourceTree = "<group>"; };
 		156BB88D28A52686000182DB /* base-project-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "base-project-Info.plist"; sourceTree = SOURCE_ROOT; };
-		157736012B261736009A45BF /* DomainExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainExtensions.swift; sourceTree = "<group>"; };
-		157736072B261AD9009A45BF /* DomainConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainConstants.swift; sourceTree = "<group>"; };
 		157A1123289AC7890035636F /* CharactersModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersModel.swift; sourceTree = "<group>"; };
 		157A1D9628BD129500DE0678 /* FileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileModel.swift; sourceTree = "<group>"; };
 		1581A0172898263100CD1DF0 /* base_project.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = base_project.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,6 +153,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1214C93E2C41389700551FF9 /* DataSource */ = {
+			isa = PBXGroup;
+			children = (
+				1214C93F2C4138EF00551FF9 /* CharactersDataSource.swift */,
+			);
+			path = DataSource;
+			sourceTree = "<group>";
+		};
 		151F44F3289D641300BC7D2E /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
@@ -255,8 +261,6 @@
 		1581A0442898264400CD1DF0 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
-				157736072B261AD9009A45BF /* DomainConstants.swift */,
-				157736012B261736009A45BF /* DomainExtensions.swift */,
 				157A1D9528BD128100DE0678 /* Models used to send data */,
 				15C81439289991E30029EA26 /* Models */,
 			);
@@ -317,6 +321,7 @@
 		159842952C3A4DBB00DA5E52 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				1214C93E2C41389700551FF9 /* DataSource */,
 				1598429F2C3A5BED00DA5E52 /* Network */,
 				1581A0472898269F00CD1DF0 /* InternetConnectivityViewModel.swift */,
 				159842962C3A4E7300DA5E52 /* DataExtensions.swift */,
@@ -636,13 +641,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				157736082B261AD9009A45BF /* DomainConstants.swift in Sources */,
 				15C81438289973BD0029EA26 /* CharactersViewModel.swift in Sources */,
-				157736022B261736009A45BF /* DomainExtensions.swift in Sources */,
 				1581A0512898277200CD1DF0 /* GeneralFunctions.swift in Sources */,
 				1581A053289827AB00CD1DF0 /* Singleton.swift in Sources */,
 				15ED1AA628A406FA008A92B2 /* CharacterCell.swift in Sources */,
 				1581A0462898266800CD1DF0 /* URLRequest.swift in Sources */,
+				1214C9402C4138EF00551FF9 /* CharactersDataSource.swift in Sources */,
 				1598429E2C3A548C00DA5E52 /* Extensions.swift in Sources */,
 				1581A04D2898271700CD1DF0 /* PresentationConstants.swift in Sources */,
 				15C3EBC12B1F922200E12469 /* ShimmerView.swift in Sources */,

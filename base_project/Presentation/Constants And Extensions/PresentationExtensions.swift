@@ -7,6 +7,17 @@
 
 import Foundation
 import SwiftUI
+import Combine
+
+//MARK: - Set<AnyCancellable>
+typealias AnyCancellablesSet = Set<AnyCancellable>
+
+extension AnyCancellablesSet {
+    mutating func cancelAll() {
+        forEach { $0.cancel() }
+        removeAll()
+    }
+}
 
 //MARK: - UIScreen
 extension UIScreen {

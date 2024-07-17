@@ -36,11 +36,11 @@ class CharactersViewModel: ObservableObject {
             characters.removeAll()
         }
         
-        let params = ["limit": 10, "offset": currentLength] as JSONKeyPair
+        let queryParameters = ["limit": 10, "offset": currentLength] as JSONKeyPair
         
         var urlRequest = URLRequest(ofHTTPMethod: .get,
                                     forAppEndpoint: .characters,
-                                    withQueryParameters: params)
+                                    withQueryParameters: queryParameters)
         
         urlRequest?.addHeaders()
         

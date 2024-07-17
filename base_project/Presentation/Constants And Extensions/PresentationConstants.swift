@@ -13,6 +13,10 @@ enum BitterFontEnum {
     case light, regular, medium, semiBold, bold
 }
 
+enum ApiStatus {
+    case notHitOnce, isBeingHit, apiHit, apiHitWithError
+}
+
 //MARK: - App Colors
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Color {

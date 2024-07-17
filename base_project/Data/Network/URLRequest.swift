@@ -27,8 +27,8 @@ extension URLRequest {
     }
     
     init?(ofHTTPMethod httpMethod: HTTPMethod,
-         forAppEndpoint appEndpoint: AppEndpointsWithParamters,
-         withQueryParameters queryParameters: JSONKeyPair?) {
+          forAppEndpoint appEndpoint: AppEndpointsWithParamters,
+          withQueryParameters queryParameters: JSONKeyPair?) {
         self.init(withHTTPMethod: httpMethod,
                   forAppEndpoint: appEndpoint,
                   withQueryParameters: queryParameters)
@@ -166,106 +166,136 @@ extension URLRequest {
     }
     
     //MARK: - Hit API
-    func hitApi<T: Decodable>(decodingStruct: T.Type,
-                              outputBlockForInternetNotConnected: @escaping () -> Void) -> AnyPublisher<T, APIError> {
+    func sendAPIRequest() async -> (Data?, Error?) {
         
         print("Headers:", self.allHTTPHeaderFields ?? [:])
         printRequestDetailsTag(isStarted: false)
         
-        if Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet {
-            return URLSession
-                .shared
-                .dataTaskPublisher(for: self)
-                .receive(on: DispatchQueue.main)
-                .mapError { _ in
-                    self.printApiError(.mapError)
-                    return APIError.mapError
-                }
-            //.decode(type: T.self, decoder: Singleton.sharedInstance.jsonDecoder)
-                .flatMap { data, response -> AnyPublisher<T, APIError> in
-                    printResponseDetailsTag(isStarted: true)
-                    
-                    guard let response = response as? HTTPURLResponse else{
-                        return self.getApiErrorPublisher(.invalidHTTPURLResponse)
-                    }
-                    let jsonConvert = try? JSONSerialization.jsonObject(with: data, options: [])
-                    let json = jsonConvert as AnyObject
-                    #if DEBUG
-                    print("Json Response:")
-                    print(json)
-                    #endif
-                    switch response.statusCode {
-                    case 100...199:
-                        return self.getApiErrorPublisher(.informationalError(response.statusCode))
-                    case 200...299:
-                        #if DEBUG
-                        if let _ = data.toStruct(decodingStruct) {
-                            printResponseDetailsTag(isStarted: false)
-                        }
-                        #endif
-                        return Just(data)
-                            .decode(type: decodingStruct.self,
-                                    decoder: Singleton.sharedInstance.jsonDecoder)
-                            .mapError { _ in
-                                self.printApiError(.decodingError)
-                                return APIError.decodingError
-                            }
-                            .eraseToAnyPublisher()
-                    case 300...399:
-                        return self.getApiErrorPublisher(.redirectionalError(response.statusCode))
-                    case 400...499:
-                        let clientErrorEnum = ClientErrorsEnum(rawValue: response.statusCode) ?? .other
-                        switch clientErrorEnum {
-                        case .unauthorized:
-                            Singleton.sharedInstance.alerts.handle401StatueCode()
-                        case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
-                            if let message = json["message"] as? String {
-                                Singleton.sharedInstance.alerts.errorAlertWith(message: message)
-                            } else if let errorMessage = json["error"] as? String {
-                                Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-                            } else if let errorMessages = json["error"] as? [String] {
-                                var errorMessage = ""
-                                for message in errorMessages {
-                                    if errorMessage != "" {
-                                        errorMessage = errorMessage + ", "
-                                    }
-                                    errorMessage = errorMessage + message
-                                }
-                                Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-                            } else{
-                                Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
-                            }
-                        }
-                        return self.getApiErrorPublisher(.clientError(clientErrorEnum))
-                    case 500...599:
-                        return self.getApiErrorPublisher(.serverError(response.statusCode))
-                    default:
-                        return self.getApiErrorPublisher(.unknown(response.statusCode))
-                    }
-                }.eraseToAnyPublisher()
-        } else {
-            let monitor = NWPathMonitor()
-            let queue = DispatchQueue(label: self.getURLString)
-            monitor.pathUpdateHandler = { path in
-                DispatchQueue.main.async {
-                    if path.status == .satisfied {
-                        outputBlockForInternetNotConnected()
-                        monitor.cancel()
-                    }
-                }
-            }
-            monitor.start(queue: queue)
-            return getApiErrorPublisher(.internetNotConnected)
+        guard Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet else {
+            return (nil, printAndReturnAPIRequestError(.internetNotConnected))
         }
+        
+        do {
+            let (data, response) = try await URLSession
+                .shared
+                .data(for: self)
+            
+            printResponseDetailsTag(isStarted: true)
+            
+            guard let response = response as? HTTPURLResponse else {
+                return (data, printAndReturnAPIRequestError(.invalidHTTPURLResponse))
+            }
+            
+            #if DEBUG
+            let jsonConvert = try? JSONSerialization.jsonObject(with: data, options: [])
+            let json = jsonConvert as AnyObject
+            print("Json Response:")
+            print(json)
+            #endif
+            
+            guard let mimeType = response.mimeType, mimeType == "application/json" else {
+                print("Wrong MIME type!", response.mimeType ?? "")
+                
+                let paragraphs = String(data: data, encoding: .utf8)!.components(separatedBy: .newlines)
+                print("Data received from API", paragraphs)
+                
+                return (data, printAndReturnAPIRequestError(.invalidMimeType))
+            }
+            
+            switch response.statusCode {
+            case 100...199:
+                return (data, printAndReturnAPIRequestError(.informationalError(response.statusCode)))
+            case 200...299:
+                printResponseDetailsTag(isStarted: false)
+                return (data, nil)
+                
+//#if DEBUG
+//                if let _ = data.toStruct(decodingStruct) {
+//                    printResponseDetailsTag(isStarted: false)
+//                }
+//#endif
+//                return Just(data)
+//                    .decode(type: decodingStruct.self,
+//                            decoder: Singleton.sharedInstance.jsonDecoder)
+//                    .mapError { _ in
+//                        self.printApiError(.decodingError)
+//                        return APIError.decodingError
+//                    }
+//                    .eraseToAnyPublisher()
+                
+            case 300...399:
+                return (data, printAndReturnAPIRequestError(.redirectionalError(response.statusCode)))
+            case 400...499:
+                let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: response.statusCode)
+                switch clientErrorEnum {
+                case .unauthorized:
+                    Singleton.sharedInstance.alerts.handle401StatueCode()
+                case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
+                    if let message = json["message"] as? String {
+                        Singleton.sharedInstance.alerts.errorAlertWith(message: message)
+                    } else if let errorMessage = json["error"] as? String {
+                        Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
+                    } else if let errorMessages = json["error"] as? [String] {
+                        var errorMessage = ""
+                        for message in errorMessages {
+                            if errorMessage != "" {
+                                errorMessage = errorMessage + ", "
+                            }
+                            errorMessage = errorMessage + message
+                        }
+                        Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
+                    } else{
+                        Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
+                    }
+                }
+                return (data, printAndReturnAPIRequestError(.clientError(clientErrorEnum, response.statusCode)))
+            case 500...599:
+                return (data, printAndReturnAPIRequestError(.serverError(response.statusCode)))
+            default:
+                return (data, self.printAndReturnAPIRequestError(.unknown(response.statusCode)))
+            }
+        } catch let error {
+            return (nil, error)
+//               let urlError = underlyingError as? URLError {
+//                case .timedOut:
+//                    self.ShowErrorOnTokenExpire(errorCode: StringConstants.inconvenience.localized)
+//                    Loader.shared.hideLoader()
+//                    print("-----URL Response Details Ends-----\n")
+//                    //                                           UtilitiesHelper.ShowAlertOfValidation(OfMessage: StringConstants.requestTimeOut.localized)
+//                    completion?(nil, JSON(error),error)
+//                case .notConnectedToInternet:
+//                    UtilitiesHelper.ShowAlertOfValidation(OfMessage: StringConstants.internetConnection.localized)
+//                    Loader.shared.hideLoader()
+//                    print("-----URL Response Details Ends-----\n")
+//                    completion?(nil, JSON(error),error)
+//                case .networkConnectionLost:
+//                    //reloads the api if network connection lost
+//                    print("-----URL Response Details Ends-----")
+//                    print("Same API will be called again now\n")
+        }
+        //        } else {
+        //            let monitor = NWPathMonitor()
+        //            let queue = DispatchQueue(label: self.getURLString)
+        //            monitor.pathUpdateHandler = { path in
+        //                DispatchQueue.main.async {
+        //                    if path.status == .satisfied {
+        //                        outputBlockForInternetNotConnected()
+        //                        monitor.cancel()
+        //                    }
+        //                }
+        //            }
+        //            monitor.start(queue: queue)
+        //            return getApiErrorPublisher(.internetNotConnected)
+        //        }
     }
     
     //MARK: - Error Publishers
-    private func getApiErrorPublisher<T: Decodable>(_ apiError: APIError) -> AnyPublisher<T, APIError> {
+    private func printAndReturnAPIRequestError(_ apiError: APIRequestError) -> APIRequestError {
         printApiError(apiError)
-        return Fail(error: apiError).eraseToAnyPublisher()
+        return apiError
     }
     
-    private func printApiError(_ apiError: APIError) {
+    private func printApiError(_ apiError: APIRequestError) {
         print(URLRequest.apiErrorTAG, "\(apiError)")
         if apiError.localizedDescription != APIError.internetNotConnected.localizedDescription {
             printResponseDetailsTag(isStarted: false)
