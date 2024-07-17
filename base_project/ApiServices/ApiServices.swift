@@ -20,7 +20,7 @@ extension URLRequest {
     //MARK: - Initializers
     init?(ofHTTPMethod httpMethod: HTTPMethod,
           forAppEndpoint appEndpoint: AppEndpoints,
-          withQueryParameters queryParameters: JSONKeyPair?) {
+          withQueryParameters queryParameters: JSONKeyValuePair?) {
         self.init(withHTTPMethod: httpMethod,
                   forAppEndpoint: appEndpoint,
                   withQueryParameters: queryParameters)
@@ -28,7 +28,7 @@ extension URLRequest {
     
     init?(ofHTTPMethod httpMethod: HTTPMethod,
          forAppEndpoint appEndpoint: AppEndpointsWithParamters,
-         withQueryParameters queryParameters: JSONKeyPair?) {
+         withQueryParameters queryParameters: JSONKeyValuePair?) {
         self.init(withHTTPMethod: httpMethod,
                   forAppEndpoint: appEndpoint,
                   withQueryParameters: queryParameters)
@@ -36,7 +36,7 @@ extension URLRequest {
     
     private init?(withHTTPMethod httpMethod: HTTPMethod,
                   forAppEndpoint appEndpoint: EndpointsProtocol,
-                  withQueryParameters queryParameters: JSONKeyPair?) {
+                  withQueryParameters queryParameters: JSONKeyValuePair?) {
         let urlString = appEndpoint.getURLString()
         guard let url = URL(string: urlString) else {
             print(URLRequest.apiErrorTAG, "Cannot Initiate URL with String", urlString)
@@ -46,7 +46,7 @@ extension URLRequest {
         self.init(url: url)
         printRequestDetailsTag(isStarted: true)
         if let queryParameters {
-            let urlComponents = getQueryItems(withParamters: queryParameters)
+            let urlComponents = getURLComponents(withQueryParameters: queryParameters)
             if let url = urlComponents?.url {
                 self.url = url
             }
@@ -58,11 +58,11 @@ extension URLRequest {
     }
     
     //MARK: - Query Parameters
-    private func getQueryItems(withParamters parameters: JSONKeyPair) -> URLComponents? {
+    private func getURLComponents(withQueryParameters queryParameters: JSONKeyValuePair) -> URLComponents? {
         var urlComponents = URLComponents(string: self.getURLString)
         urlComponents?.queryItems = []
-        for (keyName, value) in parameters {
-            urlComponents?.queryItems?.append(URLQueryItem(name: keyName, value: "\(value)"))
+        for (key, value) in queryParameters {
+            urlComponents?.queryItems?.append(URLQueryItem(name: key, value: "\(value)"))
         }
         if let component = urlComponents {
             //https://stackoverflow.com/questions/27723912/swift-get-request-with-parameters
@@ -75,7 +75,7 @@ extension URLRequest {
     }
     
     //MARK: - Headers
-    mutating func addHeaders(_ headers: JSONKeyPair? = nil, shouldAddAuthToken: Bool = false) {
+    mutating func addHeaders(_ headers: JSONKeyValuePair? = nil, shouldAddAuthToken: Bool = false) {
         //set headers
         self.addValue("iOS", forHTTPHeaderField: "device")
         self.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -91,7 +91,7 @@ extension URLRequest {
     }
     
     //MARK: - Parameters
-    mutating func addParameters(_ parameters: JSONKeyPair?, withFileModel fileModel: [FileModel]? = nil, as parameterEncoding: ParameterEncoding) {
+    mutating func addParameters(_ parameters: JSONKeyValuePair?, withFileModel fileModel: [FileModel]? = nil, as parameterEncoding: ParameterEncoding) {
         let urlString = self.getURLString
         switch parameterEncoding {
         case .jsonBody:
@@ -106,7 +106,7 @@ extension URLRequest {
             }
         case .urlFormEncoded:
             if let parameters {
-                let urlComponents = self.getQueryItems(withParamters: parameters)
+                let urlComponents = self.getURLComponents(withQueryParameters: parameters)
                 let formEncodedString = urlComponents?.percentEncodedQuery
                 if let formEncodedData = formEncodedString?.data(using: .utf8) {
                     self.httpBody = formEncodedData
@@ -127,7 +127,7 @@ extension URLRequest {
             
             if let parameters {
                 parameters.forEach { key, value in
-                    if let params = value as? JSONKeyPair, let data = try? JSONSerialization.data(withJSONObject: params, options: .prettyPrinted) {
+                    if let params = value as? JSONKeyValuePair, let data = try? JSONSerialization.data(withJSONObject: params, options: .prettyPrinted) {
                         body.appendString("--\(boundary + lineBreak)")
                         body.appendString("Content-Disposition: form-data; name=\"\(key)\"\(lineBreak + lineBreak)")
                         //body.appendString("Content-Type: application/json;charset=utf-8\(lineBreak + lineBreak)")

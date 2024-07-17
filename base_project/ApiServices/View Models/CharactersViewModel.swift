@@ -36,7 +36,7 @@ class CharactersViewModel: ObservableObject {
             characters.removeAll()
         }
         
-        let params = ["limit": 10, "offset": currentLength] as JSONKeyPair
+        let params = ["limit": 10, "offset": currentLength] as JSONKeyValuePair
         
         var urlRequest = URLRequest(ofHTTPMethod: .get,
                                     forAppEndpoint: .characters,

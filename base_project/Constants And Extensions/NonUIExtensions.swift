@@ -53,10 +53,10 @@ extension Data {
     }
 }
 
-//MARK: - JSONKeyPair
-typealias JSONKeyPair = [String: Any]
+//MARK: - JSONKeyValuePair
+typealias JSONKeyValuePair = [String: Any]
 
-extension JSONKeyPair {
+extension JSONKeyValuePair {
     func toStruct<T: Decodable>(_ decodingStruct: T.Type) -> T? {
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
@@ -89,9 +89,9 @@ extension Encodable {
         return nil
     }
     
-    func toJsonKeyPair() -> JSONKeyPair? {
+    func toJSONKeyValuePair() -> JSONKeyValuePair? {
         if let jsonObject = self.toJsonObject(),
-           let parameter = jsonObject as? JSONKeyPair {
+           let parameter = jsonObject as? JSONKeyValuePair {
             return parameter
         }
         return nil
