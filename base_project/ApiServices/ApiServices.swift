@@ -27,7 +27,7 @@ extension URLRequest {
     }
     
     init?(ofHTTPMethod httpMethod: HTTPMethod,
-         forAppEndpoint appEndpoint: AppEndpointsWithParamters,
+         forAppEndpoint appEndpoint: AppEndpointsWithParameters,
          withQueryParameters queryParameters: JSONKeyValuePair?) {
         self.init(withHTTPMethod: httpMethod,
                   forAppEndpoint: appEndpoint,
@@ -50,7 +50,7 @@ extension URLRequest {
             if let url = urlComponents?.url {
                 self.url = url
             }
-            print("Query Paramters:", queryParameters)
+            print("Query Parameters:", queryParameters)
             print("URL with Query Parameter:", self.getURLString)
         }
         self.httpMethod = httpMethod.rawValue
