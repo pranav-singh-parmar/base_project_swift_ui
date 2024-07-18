@@ -16,6 +16,11 @@ enum ParameterEncoding: String {
     case jsonBody, urlFormEncoded, formData
 }
 
+enum URLRequestError: Error {
+    case invalidURL,
+         invalidQueryParameters
+}
+
 //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#server_error_responses
 //Informational responses (100-199)
 //Successful responses (200–299)
@@ -24,8 +29,10 @@ enum ParameterEncoding: String {
 //Server error responses (500–599)
 enum APIRequestError: Error {
     case internetNotConnected,
-         invalidURL,
          invalidHTTPURLResponse,
+         timedOut,
+         networkConnectionLost,
+         urlError(Int),
          invalidMimeType,
          informationalError(Int),
          redirectionalError(Int),
@@ -70,12 +77,44 @@ enum ClientErrorsEnum {
 }
 
 enum DataSourceError: Error {
-    case apiRequestError(APIRequestError),
-         invalidURL,
-         decodingError,
-         unknown
+    case urlRequestError(URLRequestError),
+         apiRequestError(APIRequestError),
+         decodingError
 }
 
 enum RepositoryError: Error {
     case dataSourceError(DataSourceError)
+}
+
+
+
+@frozen
+enum APIRequestResult<Success, Failure> where Failure : Error {
+    
+    /// A success, storing a `Success` value.
+    case success(Success)
+    
+    /// A failure, storing a `Failure` value.
+    case failure(Failure, Data?)
+}
+
+@frozen
+enum DataSourceResult<Success, Failure> where Failure : Error {
+    
+    /// A success, storing a `Success` value.
+    case success(Success)
+    
+    /// A failure, storing a `Failure` value.
+    case failure(Failure)
+}
+
+
+@frozen
+enum RepositoryResult<Success, Failure> where Failure : Error {
+    
+    /// A success, storing a `Success` value.
+    case success(Success)
+    
+    /// A failure, storing a `Failure` value.
+    case failure(Failure)
 }

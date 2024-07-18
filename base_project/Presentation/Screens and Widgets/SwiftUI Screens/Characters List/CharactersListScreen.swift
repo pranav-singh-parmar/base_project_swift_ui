@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CharactersListScreen: View {
     
-    @StateObject private var charactersVM = CharactersViewModel()
+    @StateObject private var charactersListVM = CharactersListViewModel()
     
     @State private var reader: ScrollViewProxy?
     
@@ -17,22 +17,22 @@ struct CharactersListScreen: View {
     
     var body: some View {
         ZStack {
-            let count = charactersVM.characters.count
-            if charactersVM.getCharactersAS == .apiHit && count == 0 {
+            let count = charactersListVM.characters.count
+            if charactersListVM.getCharactersAS == .apiHit && count == 0 {
                 EmptyListView(text: "No Characters Found")
-            } else if charactersVM.getCharactersAS == .apiHit || count != 0 {
+            } else if charactersListVM.getCharactersAS == .apiHit || count != 0 {
                 ScrollViewReader { reader in
                     List {
-                        Section(footer: !charactersVM.fetchedAllData ?
+                        Section(footer: !charactersListVM.fetchedAllData ?
                                 ListFooterProgressView()
                                 : nil) {
-                            ForEach(Array(charactersVM.characters.enumerated()), id: \.1) { index, character in
+                            ForEach(Array(charactersListVM.characters.enumerated()), id: \.1) { index, character in
                                 CharacterCell(character)
                                     .padding(.horizontal, padding / 2)
                                     .padding(.bottom, padding)
                                     .if(index == 0) { $0.padding(.top, padding) }
                                     .onAppear {
-                                        charactersVM.paginateWithIndex(index)
+                                        //charactersListVM.paginateWithIndex(index)
                                     }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                                     .listRowBackground(Color.clear)
                                     .id(index)
@@ -63,7 +63,7 @@ struct CharactersListScreen: View {
         }.navigationBarTitle("Breaking Bad Cast")
             .onAppear {
                 reader?.scrollTo(0)
-                charactersVM.getCharacters()
+                //charactersListVM.getCharacters()
             }
     }
 }

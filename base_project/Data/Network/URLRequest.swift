@@ -18,51 +18,63 @@ extension URLRequest {
     }
     
     //MARK: - Initializers
-    init?(ofHTTPMethod httpMethod: HTTPMethod,
-          forAppEndpoint appEndpoint: AppEndpoints,
-          withQueryParameters queryParameters: JSONKeyPair?) {
-        self.init(withHTTPMethod: httpMethod,
-                  forAppEndpoint: appEndpoint,
-                  withQueryParameters: queryParameters)
+    init(ofHTTPMethod httpMethod: HTTPMethod,
+         forAppEndpoint appEndpoint: AppEndpoints,
+         withQueryParameters queryParameters: JSONKeyValuePair?) throws {
+        do {
+            try self.init(withHTTPMethod: httpMethod,
+                          forAppEndpoint: appEndpoint,
+                          withQueryParameters: queryParameters)
+        } catch {
+            throw error
+        }
     }
     
-    init?(ofHTTPMethod httpMethod: HTTPMethod,
-          forAppEndpoint appEndpoint: AppEndpointsWithParamters,
-          withQueryParameters queryParameters: JSONKeyPair?) {
-        self.init(withHTTPMethod: httpMethod,
-                  forAppEndpoint: appEndpoint,
-                  withQueryParameters: queryParameters)
+    init(ofHTTPMethod httpMethod: HTTPMethod,
+         forAppEndpoint appEndpoint: AppEndpointsWithParameters,
+         withQueryParameters queryParameters: JSONKeyValuePair?) throws {
+        do {
+            try self.init(withHTTPMethod: httpMethod,
+                          forAppEndpoint: appEndpoint,
+                          withQueryParameters: queryParameters)
+        } catch {
+            throw error
+        }
     }
     
-    private init?(withHTTPMethod httpMethod: HTTPMethod,
-                  forAppEndpoint appEndpoint: EndpointsProtocol,
-                  withQueryParameters queryParameters: JSONKeyPair?) {
+    private init(withHTTPMethod httpMethod: HTTPMethod,
+                 forAppEndpoint appEndpoint: EndpointsProtocol,
+                 withQueryParameters queryParameters: JSONKeyValuePair?) throws { //throws(APIRequestError) to be in Swift6
         let urlString = appEndpoint.getURLString()
         guard let url = URL(string: urlString) else {
-            print(URLRequest.apiErrorTAG, "Cannot Initiate URL with String", urlString)
-            return nil
+            //print(URLRequest.apiErrorTAG, "Cannot Initiate URL with String", urlString)
+            throw URLRequestError.invalidURL
         }
         
         self.init(url: url)
-        printRequestDetailsTag(isStarted: true)
         if let queryParameters {
-            let urlComponents = getQueryItems(withParamters: queryParameters)
-            if let url = urlComponents?.url {
-                self.url = url
+            let urlComponents = getURLComponents(withQueryParameters: queryParameters)
+            guard let url = urlComponents?.url else {
+                throw URLRequestError.invalidQueryParameters
             }
-            print("Query Paramters:", queryParameters)
+            
+            self.url = url
+            printRequestDetailsTag(isStarted: true)
+            print("Query Parameters:", queryParameters)
             print("URL with Query Parameter:", self.getURLString)
+        } else {
+            printRequestDetailsTag(isStarted: true)
         }
         self.httpMethod = httpMethod.rawValue
         print("HTTP Method:", self.httpMethod ?? "http method not assigned")
     }
     
-    //MARK: - Query Parameters
-    private func getQueryItems(withParamters parameters: JSONKeyPair) -> URLComponents? {
+    //MARK: - URLComponents
+    private func getURLComponents(withQueryParameters queryParameters: JSONKeyValuePair) -> URLComponents? {
         var urlComponents = URLComponents(string: self.getURLString)
         urlComponents?.queryItems = []
-        for (keyName, value) in parameters {
-            urlComponents?.queryItems?.append(URLQueryItem(name: keyName, value: "\(value)"))
+        for (key, value) in queryParameters {
+            urlComponents?.queryItems?.append(URLQueryItem(name: key, value: "\(value)"))
         }
         if let component = urlComponents {
             //https://stackoverflow.com/questions/27723912/swift-get-request-with-parameters
@@ -75,7 +87,7 @@ extension URLRequest {
     }
     
     //MARK: - Headers
-    mutating func addHeaders(_ headers: JSONKeyPair? = nil, shouldAddAuthToken: Bool = false) {
+    mutating func addHeaders(_ headers: JSONKeyValuePair? = nil, shouldAddAuthToken: Bool = false) {
         //set headers
         self.addValue("iOS", forHTTPHeaderField: "device")
         self.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -91,7 +103,7 @@ extension URLRequest {
     }
     
     //MARK: - Parameters
-    mutating func addParameters(_ parameters: JSONKeyPair?, withFileModel fileModel: [FileModel]? = nil, as parameterEncoding: ParameterEncoding) {
+    mutating func addParameters(_ parameters: JSONKeyValuePair?, withFileModel fileModel: [FileModel]? = nil, as parameterEncoding: ParameterEncoding) {
         let urlString = self.getURLString
         switch parameterEncoding {
         case .jsonBody:
@@ -106,7 +118,7 @@ extension URLRequest {
             }
         case .urlFormEncoded:
             if let parameters {
-                let urlComponents = self.getQueryItems(withParamters: parameters)
+                let urlComponents = self.getURLComponents(withQueryParameters: parameters)
                 let formEncodedString = urlComponents?.percentEncodedQuery
                 if let formEncodedData = formEncodedString?.data(using: .utf8) {
                     self.httpBody = formEncodedData
@@ -127,7 +139,7 @@ extension URLRequest {
             
             if let parameters {
                 parameters.forEach { key, value in
-                    if let params = value as? JSONKeyPair, let data = try? JSONSerialization.data(withJSONObject: params, options: .prettyPrinted) {
+                    if let params = value as? JSONKeyValuePair, let data = try? JSONSerialization.data(withJSONObject: params, options: .prettyPrinted) {
                         body.appendString("--\(boundary + lineBreak)")
                         body.appendString("Content-Disposition: form-data; name=\"\(key)\"\(lineBreak + lineBreak)")
                         //body.appendString("Content-Type: application/json;charset=utf-8\(lineBreak + lineBreak)")
@@ -166,13 +178,13 @@ extension URLRequest {
     }
     
     //MARK: - Hit API
-    func sendAPIRequest() async -> (Data?, Error?) {
+    func sendAPIRequest() async -> APIRequestResult<Data, APIRequestError> {
         
         print("Headers:", self.allHTTPHeaderFields ?? [:])
         printRequestDetailsTag(isStarted: false)
         
         guard Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet else {
-            return (nil, printAndReturnAPIRequestError(.internetNotConnected))
+            return .failure(printAndReturnAPIRequestError(.internetNotConnected), nil)
         }
         
         do {
@@ -183,7 +195,7 @@ extension URLRequest {
             printResponseDetailsTag(isStarted: true)
             
             guard let response = response as? HTTPURLResponse else {
-                return (data, printAndReturnAPIRequestError(.invalidHTTPURLResponse))
+                return .failure(printAndReturnAPIRequestError(.invalidHTTPURLResponse), data)
             }
             
             #if DEBUG
@@ -199,32 +211,32 @@ extension URLRequest {
                 let paragraphs = String(data: data, encoding: .utf8)!.components(separatedBy: .newlines)
                 print("Data received from API", paragraphs)
                 
-                return (data, printAndReturnAPIRequestError(.invalidMimeType))
+                return .failure(printAndReturnAPIRequestError(.invalidMimeType), data)
             }
             
             switch response.statusCode {
             case 100...199:
-                return (data, printAndReturnAPIRequestError(.informationalError(response.statusCode)))
+                return .failure(printAndReturnAPIRequestError(.informationalError(response.statusCode)), data)
             case 200...299:
                 printResponseDetailsTag(isStarted: false)
-                return (data, nil)
+                return .success(data)
                 
-//#if DEBUG
-//                if let _ = data.toStruct(decodingStruct) {
-//                    printResponseDetailsTag(isStarted: false)
-//                }
-//#endif
-//                return Just(data)
-//                    .decode(type: decodingStruct.self,
-//                            decoder: Singleton.sharedInstance.jsonDecoder)
-//                    .mapError { _ in
-//                        self.printApiError(.decodingError)
-//                        return APIError.decodingError
-//                    }
-//                    .eraseToAnyPublisher()
+                //#if DEBUG
+                //                if let _ = data.toStruct(decodingStruct) {
+                //                    printResponseDetailsTag(isStarted: false)
+                //                }
+                //#endif
+                //                return Just(data)
+                //                    .decode(type: decodingStruct.self,
+                //                            decoder: Singleton.sharedInstance.jsonDecoder)
+                //                    .mapError { _ in
+                //                        self.printApiError(.decodingError)
+                //                        return APIError.decodingError
+                //                    }
+                //                    .eraseToAnyPublisher()
                 
             case 300...399:
-                return (data, printAndReturnAPIRequestError(.redirectionalError(response.statusCode)))
+                return .failure(printAndReturnAPIRequestError(.redirectionalError(response.statusCode)), data)
             case 400...499:
                 let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: response.statusCode)
                 switch clientErrorEnum {
@@ -248,30 +260,25 @@ extension URLRequest {
                         Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
                     }
                 }
-                return (data, printAndReturnAPIRequestError(.clientError(clientErrorEnum, response.statusCode)))
+                return .failure(printAndReturnAPIRequestError(.clientError(clientErrorEnum, response.statusCode)), data)
             case 500...599:
-                return (data, printAndReturnAPIRequestError(.serverError(response.statusCode)))
+                return .failure(printAndReturnAPIRequestError(.serverError(response.statusCode)), data)
             default:
-                return (data, self.printAndReturnAPIRequestError(.unknown(response.statusCode)))
+                return .failure(printAndReturnAPIRequestError(.unknown(response.statusCode)), data)
             }
         } catch let error {
-            return (nil, error)
-//               let urlError = underlyingError as? URLError {
-//                case .timedOut:
-//                    self.ShowErrorOnTokenExpire(errorCode: StringConstants.inconvenience.localized)
-//                    Loader.shared.hideLoader()
-//                    print("-----URL Response Details Ends-----\n")
-//                    //                                           UtilitiesHelper.ShowAlertOfValidation(OfMessage: StringConstants.requestTimeOut.localized)
-//                    completion?(nil, JSON(error),error)
-//                case .notConnectedToInternet:
-//                    UtilitiesHelper.ShowAlertOfValidation(OfMessage: StringConstants.internetConnection.localized)
-//                    Loader.shared.hideLoader()
-//                    print("-----URL Response Details Ends-----\n")
-//                    completion?(nil, JSON(error),error)
-//                case .networkConnectionLost:
-//                    //reloads the api if network connection lost
-//                    print("-----URL Response Details Ends-----")
-//                    print("Same API will be called again now\n")
+            print("Error Localised Description:", error.localizedDescription)
+            let errorCode = (error as NSError).code
+            switch errorCode {
+            case NSURLErrorTimedOut:
+                return .failure(printAndReturnAPIRequestError(.timedOut), nil)
+            case NSURLErrorNotConnectedToInternet:
+                return .failure(printAndReturnAPIRequestError(.internetNotConnected), nil)
+            case NSURLErrorNetworkConnectionLost:
+                return .failure(printAndReturnAPIRequestError(.networkConnectionLost), nil)
+            default:
+                return .failure(printAndReturnAPIRequestError(.urlError(errorCode)), nil)
+            }
         }
         //        } else {
         //            let monitor = NWPathMonitor()
@@ -297,7 +304,7 @@ extension URLRequest {
     
     private func printApiError(_ apiError: APIRequestError) {
         print(URLRequest.apiErrorTAG, "\(apiError)")
-        if apiError.localizedDescription != APIError.internetNotConnected.localizedDescription {
+        if apiError.localizedDescription != APIRequestError.internetNotConnected.localizedDescription {
             printResponseDetailsTag(isStarted: false)
         }
     }

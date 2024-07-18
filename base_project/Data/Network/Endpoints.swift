@@ -22,7 +22,7 @@ enum AppEndpoints: String, EndpointsProtocol {
 }
 
 //MARK: - AppEndpoints
-enum AppEndpointsWithParamters: EndpointsProtocol {
+enum AppEndpointsWithParameters: EndpointsProtocol {
     func getURLString() -> String {
         switch self {
         case .characters(let id):
