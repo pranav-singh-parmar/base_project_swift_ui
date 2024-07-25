@@ -32,13 +32,13 @@ enum APIRequestError: Error {
          invalidHTTPURLResponse,
          timedOut,
          networkConnectionLost,
-         urlError(Int),
+         urlError(errorCode: Int),
          invalidMimeType,
-         informationalError(Int),
-         redirectionalError(Int),
-         clientError(ClientErrorsEnum, Int),
-         serverError(Int),
-         unknown(Int)
+         informationalError(statusCode: Int),
+         redirectionalError(statusCode: Int),
+         clientError(statusCode: Int),
+         serverError(statusCode: Int),
+         unknown(statusCode: Int)
 }
 
 enum ClientErrorsEnum {
@@ -100,17 +100,6 @@ enum APIRequestResult<Success, Failure> where Failure : Error {
 
 @frozen
 enum DataSourceResult<Success, Failure> where Failure : Error {
-    
-    /// A success, storing a `Success` value.
-    case success(Success)
-    
-    /// A failure, storing a `Failure` value.
-    case failure(Failure)
-}
-
-
-@frozen
-enum RepositoryResult<Success, Failure> where Failure : Error {
     
     /// A success, storing a `Success` value.
     case success(Success)

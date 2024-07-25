@@ -19,11 +19,11 @@ extension URLRequest {
     
     //MARK: - Initializers
     init(ofHTTPMethod httpMethod: HTTPMethod,
-         forAppEndpoint appEndpoint: AppEndpoints,
+         forBreakingBadEndpoint breakingBadEndpoint: BreakingBadEndpoints,
          withQueryParameters queryParameters: JSONKeyValuePair?) throws {
         do {
             try self.init(withHTTPMethod: httpMethod,
-                          forAppEndpoint: appEndpoint,
+                          forAppEndpoint: breakingBadEndpoint,
                           withQueryParameters: queryParameters)
         } catch {
             throw error
@@ -31,11 +31,11 @@ extension URLRequest {
     }
     
     init(ofHTTPMethod httpMethod: HTTPMethod,
-         forAppEndpoint appEndpoint: AppEndpointsWithParameters,
+         forBreakingBadEndpointWithParameters breakingBadEndpoint: BreakingBadEndpointsWithParameters,
          withQueryParameters queryParameters: JSONKeyValuePair?) throws {
         do {
             try self.init(withHTTPMethod: httpMethod,
-                          forAppEndpoint: appEndpoint,
+                          forAppEndpoint: breakingBadEndpoint,
                           withQueryParameters: queryParameters)
         } catch {
             throw error
@@ -43,7 +43,7 @@ extension URLRequest {
     }
     
     private init(withHTTPMethod httpMethod: HTTPMethod,
-                 forAppEndpoint appEndpoint: EndpointsProtocol,
+                 forAppEndpoint appEndpoint: APIEndpointsProtocol,
                  withQueryParameters queryParameters: JSONKeyValuePair?) throws { //throws(APIRequestError) to be in Swift6
         let urlString = appEndpoint.getURLString()
         guard let url = URL(string: urlString) else {
@@ -198,75 +198,49 @@ extension URLRequest {
                 return .failure(printAndReturnAPIRequestError(.invalidHTTPURLResponse), data)
             }
             
-            #if DEBUG
-            let jsonConvert = try? JSONSerialization.jsonObject(with: data, options: [])
-            let json = jsonConvert as AnyObject
-            print("Json Response:")
-            print(json)
-            #endif
-            
             guard let mimeType = response.mimeType, mimeType == "application/json" else {
                 print("Wrong MIME type!", response.mimeType ?? "")
                 
-                let paragraphs = String(data: data, encoding: .utf8)!.components(separatedBy: .newlines)
-                print("Data received from API", paragraphs)
+                if let paragraphs = String(data: data, encoding: .utf8)?.components(separatedBy: .newlines) {
+                    print("Data received from API:")
+                    for line in paragraphs {
+                        print(line)
+                    }
+                } else {
+                    print("Default Message: Not able to read data")
+                }
                 
                 return .failure(printAndReturnAPIRequestError(.invalidMimeType), data)
             }
             
+            #if DEBUG
+            do {
+                let jsonConvert = try JSONSerialization.jsonObject(with: data, options: [])
+                let json = jsonConvert as? [String: AnyObject]
+                print("Json Response:")
+                print(json ?? [:])
+            } catch {
+                print("Can't Fetch JSON Response:", error)
+            }
+            #endif
+            
             switch response.statusCode {
             case 100...199:
-                return .failure(printAndReturnAPIRequestError(.informationalError(response.statusCode)), data)
+                return .failure(printAndReturnAPIRequestError(.informationalError(statusCode: response.statusCode)), data)
             case 200...299:
                 printResponseDetailsTag(isStarted: false)
                 return .success(data)
-                
-                //#if DEBUG
-                //                if let _ = data.toStruct(decodingStruct) {
-                //                    printResponseDetailsTag(isStarted: false)
-                //                }
-                //#endif
-                //                return Just(data)
-                //                    .decode(type: decodingStruct.self,
-                //                            decoder: Singleton.sharedInstance.jsonDecoder)
-                //                    .mapError { _ in
-                //                        self.printApiError(.decodingError)
-                //                        return APIError.decodingError
-                //                    }
-                //                    .eraseToAnyPublisher()
-                
             case 300...399:
-                return .failure(printAndReturnAPIRequestError(.redirectionalError(response.statusCode)), data)
+                return .failure(printAndReturnAPIRequestError(.redirectionalError(statusCode: response.statusCode)), data)
             case 400...499:
-                let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: response.statusCode)
-                switch clientErrorEnum {
-                case .unauthorized:
-                    Singleton.sharedInstance.alerts.handle401StatueCode()
-                case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
-                    if let message = json["message"] as? String {
-                        Singleton.sharedInstance.alerts.errorAlertWith(message: message)
-                    } else if let errorMessage = json["error"] as? String {
-                        Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-                    } else if let errorMessages = json["error"] as? [String] {
-                        var errorMessage = ""
-                        for message in errorMessages {
-                            if errorMessage != "" {
-                                errorMessage = errorMessage + ", "
-                            }
-                            errorMessage = errorMessage + message
-                        }
-                        Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-                    } else{
-                        Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
-                    }
-                }
-                return .failure(printAndReturnAPIRequestError(.clientError(clientErrorEnum, response.statusCode)), data)
+                return .failure(printAndReturnAPIRequestError(.clientError(statusCode: response.statusCode)), data)
             case 500...599:
-                return .failure(printAndReturnAPIRequestError(.serverError(response.statusCode)), data)
+                return .failure(printAndReturnAPIRequestError(.serverError(statusCode: response.statusCode)), data)
             default:
-                return .failure(printAndReturnAPIRequestError(.unknown(response.statusCode)), data)
+                return .failure(printAndReturnAPIRequestError(.unknown(statusCode: response.statusCode)), data)
             }
         } catch let error {
+            printResponseDetailsTag(isStarted: true)
             print("Error Localised Description:", error.localizedDescription)
             let errorCode = (error as NSError).code
             switch errorCode {
@@ -277,7 +251,7 @@ extension URLRequest {
             case NSURLErrorNetworkConnectionLost:
                 return .failure(printAndReturnAPIRequestError(.networkConnectionLost), nil)
             default:
-                return .failure(printAndReturnAPIRequestError(.urlError(errorCode)), nil)
+                return .failure(printAndReturnAPIRequestError(.urlError(errorCode: errorCode)), nil)
             }
         }
         //        } else {

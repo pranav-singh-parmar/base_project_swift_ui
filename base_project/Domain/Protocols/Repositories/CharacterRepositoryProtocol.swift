@@ -8,5 +8,5 @@
 import Foundation
 
 protocol CharacterRepositoryProtocol {
-    func getCharacters(startingFromOffset offset: Int, withLimitOf limit: Int) async -> RepositoryResult<Characters, RepositoryError>
+    func getCharacters(startingFromOffset offset: Int, withLimitOf limit: Int) async -> Result<Characters, RepositoryError>
 }

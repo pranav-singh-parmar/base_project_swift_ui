@@ -16,16 +16,20 @@ struct AppInfo {
     static var appId = 0
 }
 
-//MARK: - AppURLs
-class AppURLs {
+enum BreakingBadURLs {
     private static let baseURL = "https://www.breakingbadapi.com/"
     
     static func getAPIURL() -> String {
         return baseURL + "api/"
     }
+}
+
+//MARK: - AppURLs
+class AnimeURLs {
+    private static let baseURL = "https://www.breakingbadapi.com/"
     
-    //    func updateAPIURL(_ urlString: String) {
-    //        apiURL = urlString
-    //    }
+    static func getAPIURL() -> String {
+        return baseURL + "api/"
+    }
 }
 

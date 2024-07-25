@@ -34,9 +34,86 @@ extension Data {
         }
         return nil
     }
+    
+    func getErrorMessageFromJSONData(withAPIRequestError apiRequestError: APIRequestError) -> String {
+//        do {
+//            let jsonConvert = try JSONSerialization.jsonObject(with: self, options: [])
+//            let json = (jsonConvert as? [String: AnyObject]) ?? [:]
+//            switch apiRequestError {
+//            case .clientError(let statusCode):
+//                let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: statusCode)
+//                switch clientErrorEnum {
+//                    case .unauthorized:
+//                        Singleton.sharedInstance.alerts.handle401StatueCode()
+//                    case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
+//                        if let message = json["message"] as? String {
+//                            Singleton.sharedInstance.alerts.errorAlertWith(message: message)
+//                        } else if let errorMessage = json["error"] as? String {
+//                            Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
+//                        } else if let errorMessages = json["error"] as? [String] {
+//                            var errorMessage = ""
+//                            for message in errorMessages {
+//                                if errorMessage != "" {
+//                                    errorMessage = errorMessage + ", "
+//                                }
+//                                errorMessage = errorMessage + message
+//                            }
+//                            Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
+//                        } else{
+//                            Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
+//                        }
+//                }
+//            case .internetNotConnected:
+//                "Check your Internet Connection"
+//            case .invalidHTTPURLResponse:
+//                "Invalid Response"
+//            case .timedOut:
+//                "Server Request timed out"
+//            case .networkConnectionLost:
+//                "Connection with Server lost"
+//            case .urlError(_):
+//                "URL not initialised"
+//            case .invalidMimeType:
+//                "Invalid response from Server"
+//            case .informationalError(_), .redirectionalError(_), .serverError(_), .unknown(_):
+//                json["message"] as? String
+//            case .redirectionalError(_):
+//                json["message"] as? String
+//            case .serverError(_):
+//                json["message"] as? String
+//            case .unknown(_):
+//                json["message"] as? String
+//            }
+//            //                switch clientErrorEnum {
+//            //                case .unauthorized:
+//            //                    Singleton.sharedInstance.alerts.handle401StatueCode()
+//            //                case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
+//            //                    if let message = json["message"] as? String {
+//            //                        Singleton.sharedInstance.alerts.errorAlertWith(message: message)
+//            //                    } else if let errorMessage = json["error"] as? String {
+//            //                        Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
+//            //                    } else if let errorMessages = json["error"] as? [String] {
+//            //                        var errorMessage = ""
+//            //                        for message in errorMessages {
+//            //                            if errorMessage != "" {
+//            //                                errorMessage = errorMessage + ", "
+//            //                            }
+//            //                            errorMessage = errorMessage + message
+//            //                        }
+//            //                        Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
+//            //                    } else{
+//            //                        Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
+//            //                    }
+//            //                }
+//        } catch {
+//            print("Can't Fetch JSON Response:", error)
+//        }
+        return ""
+    }
 }
 
-//MARK: - JSONKeyValuePair
+//MARK: - JSONKeyPair
+let a: Dictionary<String, Any> = [:]
 typealias JSONKeyValuePair = [String: Any]
 
 extension JSONKeyValuePair {

@@ -13,8 +13,12 @@ enum BitterFontEnum {
     case light, regular, medium, semiBold, bold
 }
 
-enum ApiStatus {
-    case notHitOnce, isBeingHit, apiHit, apiHitWithError
+enum APIRequestStatus {
+    case notConsumedOnce, isBeingConsumed, consumedWithSuccess, consumedWithError
+    
+    var isAPIConsumed: Bool {
+        return self == .consumedWithSuccess || self == .consumedWithError
+    }
 }
 
 //MARK: - App Colors

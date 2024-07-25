@@ -17,7 +17,7 @@ class CharacterRepositoryIMPL: CharacterRepositoryProtocol {
         self.characterDS = characterDS
     }
     
-    func getCharacters(startingFromOffset offset: Int, withLimitOf limit: Int) async -> RepositoryResult<Characters, RepositoryError> {
+    func getCharacters(startingFromOffset offset: Int, withLimitOf limit: Int) async -> Result<Characters, RepositoryError> {
         switch await characterDS.getCharacters(
             startingFromOffset: offset,
             withLimitOf: limit

@@ -23,8 +23,8 @@ class CharacterDataSourceIMPL: CharacterDataSourceProtocol {
         
         do {
             var urlRequest = try URLRequest(ofHTTPMethod: .get,
-                                        forAppEndpoint: .characters,
-                                        withQueryParameters: queryParameters)
+                                            forBreakingBadEndpoint: .characters,
+                                            withQueryParameters: queryParameters)
             urlRequest.addHeaders()
             
             switch await urlRequest.sendAPIRequest() {
@@ -34,7 +34,7 @@ class CharacterDataSourceIMPL: CharacterDataSourceProtocol {
                 } else {
                     return .failure(DataSourceError.decodingError)
                 }
-            case .failure(let error, let data):
+            case .failure(let error, _):
                 return .failure(DataSourceError.apiRequestError(error))
             }
         } catch {

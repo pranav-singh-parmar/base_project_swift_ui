@@ -8,15 +8,15 @@
 import Foundation
 import Combine
 
-class CharactersListViewModel: ObservableObject {
+@MainActor class CharactersListViewModel: ObservableObject {
     
-    @Published private(set) var characters: [Character] = []
+    @Published  private(set) var getCharactersAS: APIRequestStatus = .notConsumedOnce
     
     private let getCharactersUC: any GetCharactersUseCaseProtocol
     
     private var total = 0
     private var currentLength = 0
-    private(set) var getCharactersAS: ApiStatus = .notHitOnce
+    private(set) var characters: [Character] = []
     
     var fetchedAllData: Bool {
         return total <= currentLength
@@ -26,14 +26,16 @@ class CharactersListViewModel: ObservableObject {
         self.getCharactersUC = getCharactersUC
     }
     
-    func paginateWithIndex(_ index: Int) async {
-        if getCharactersAS != .isBeingHit && index == currentLength - 1 && !fetchedAllData {
-            await getCharacters(clearList: false)
+    func paginateWithIndex(_ index: Int) {
+        if getCharactersAS != .isBeingConsumed && index == currentLength - 1 && !fetchedAllData {
+            Task {
+                await getCharacters(clearList: false)
+            }
         }
     }
     
     func getCharacters(clearList: Bool = true) async {
-        getCharactersAS = .isBeingHit
+        getCharactersAS = .isBeingConsumed
         
         if clearList {
             currentLength = 0
@@ -45,9 +47,44 @@ class CharactersListViewModel: ObservableObject {
             self.total = 30
             self.characters.append(contentsOf: characters)
             self.currentLength = self.characters.count
-            self.getCharactersAS = .apiHit
-        case .failure(_):
-            self.getCharactersAS = .apiHitWithError
+            self.getCharactersAS = .consumedWithSuccess
+        case .failure(let error):
+            self.getCharactersAS = .consumedWithError
+//            switch error {
+//            case .dataSourceError(let dataSourceError):
+//                switch dataSourceError {
+//                case .apiRequestError(let apiRequestError):
+//                    switch apiRequestError {
+//                    case .internetNotConnected:
+//                        <#code#>
+//                    case .invalidHTTPURLResponse:
+//                        <#code#>
+//                    case .timedOut:
+//                        <#code#>
+//                    case .networkConnectionLost:
+//                        <#code#>
+//                    case .urlError(let statusCode):
+//                        <#code#>
+//                    case .invalidMimeType:
+//                        <#code#>
+//                    case .informationalError(let statusCode):
+//                        <#code#>
+//                    case .redirectionalError(let statusCode):
+//                        <#code#>
+//                    case .clientError(let statusCode):
+//                        <#code#>
+//                    case .serverError(let statusCode):
+//                        <#code#>
+//                    case .unknown(let statusCode):
+//                        <#code#>
+//                    }
+//                case .urlRequestError(_):
+//                    <#code#>
+//                case .decodingError:
+//                    <#code#>
+//                }
+//                
+//            }
         }
     }
 }
