@@ -28,14 +28,15 @@ class CharacterDataSourceIMPL: CharacterDataSourceProtocol {
             urlRequest.addHeaders()
             
             switch await urlRequest.sendAPIRequest() {
-            case .success(let data):
+            case .success(_, let data):
                 if let characters = data.toStruct(Characters.self) {
                     return .success(characters)
                 } else {
                     return .failure(DataSourceError.decodingError)
                 }
-            case .failure(let error, _):
-                return .failure(DataSourceError.apiRequestError(error))
+            case .failure(let error, let data):
+                let errorMessage = data?.getErrorMessageFromJSONData(withAPIRequestError: error)
+                return .failure(DataSourceError.apiRequestError(error, errorMessage))
             }
         } catch {
             return .failure(DataSourceError.urlRequestError(error as! URLRequestError))

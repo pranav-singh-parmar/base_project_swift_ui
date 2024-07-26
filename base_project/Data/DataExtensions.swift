@@ -15,100 +15,41 @@ extension Data {
         }
     }
     
-    func toStruct<T: Decodable>(_ decodingStruct: T.Type) -> T? {
+    func getErrorMessageFromJSONData(withAPIRequestError apiRequestError: APIRequestError) -> String? {
+        let errorMessage: String?
         do {
-            return try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: self)
-        } catch let DecodingError.typeMismatch(type, context) {
-            print("Type '\(type)' mismatch:", context.debugDescription)
-            print("CodingPath:", context.codingPath)
-        } catch let DecodingError.keyNotFound(key, context) {
-            print("Key '\(key)' not found:", context.debugDescription)
-            print("CodingPath:", context.codingPath)
-        } catch let DecodingError.valueNotFound(value, context) {
-            print("Value '\(value)' not found:", context.debugDescription)
-            print("CodingPath:", context.codingPath)
-        } catch let DecodingError.dataCorrupted(context) {
-            print("Data Corrupted:", context.debugDescription)
+            let jsonConvert = try JSONSerialization.jsonObject(with: self, options: [])
+            let json = (jsonConvert as? JSONKeyValuePair) ?? [:]
+            switch apiRequestError {
+            //            case .internetNotConnected:
+            //                errorMessage = "Check your Internet Connection"
+            //            case .invalidHTTPURLResponse:
+            //                errorMessage = "Invalid Response"
+            //            case .timedOut:
+            //                errorMessage = "Server Request timed out"
+            //            case .networkConnectionLost:
+            //                errorMessage = "Connection with Server lost"
+            //            case .urlError(_):
+            //                errorMessage = "URL not initialised"
+            //            case .invalidMimeType:
+            //                errorMessage = "Invalid response from Server"
+            case .clientError(let clientErrorEnum):
+                switch clientErrorEnum {
+                case .unauthorised:
+                    errorMessage = AppTexts.AlertMessages.yourSessionHasExpiredPleaseLoginAgain
+                case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
+                    errorMessage = json.getErrorMessage
+                }
+            case .informationalError(_), .redirectionalError(_), .serverError(_), .unknown(_):
+                errorMessage = json.getErrorMessage
+            default:
+                errorMessage = nil
+            }
         } catch {
-            print(error.localizedDescription)
+            errorMessage = nil
+            print("Can't Fetch JSON Response:", error)
         }
-        return nil
-    }
-    
-    func getErrorMessageFromJSONData(withAPIRequestError apiRequestError: APIRequestError) -> String {
-//        do {
-//            let jsonConvert = try JSONSerialization.jsonObject(with: self, options: [])
-//            let json = (jsonConvert as? [String: AnyObject]) ?? [:]
-//            switch apiRequestError {
-//            case .clientError(let statusCode):
-//                let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: statusCode)
-//                switch clientErrorEnum {
-//                    case .unauthorized:
-//                        Singleton.sharedInstance.alerts.handle401StatueCode()
-//                    case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
-//                        if let message = json["message"] as? String {
-//                            Singleton.sharedInstance.alerts.errorAlertWith(message: message)
-//                        } else if let errorMessage = json["error"] as? String {
-//                            Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-//                        } else if let errorMessages = json["error"] as? [String] {
-//                            var errorMessage = ""
-//                            for message in errorMessages {
-//                                if errorMessage != "" {
-//                                    errorMessage = errorMessage + ", "
-//                                }
-//                                errorMessage = errorMessage + message
-//                            }
-//                            Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-//                        } else{
-//                            Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
-//                        }
-//                }
-//            case .internetNotConnected:
-//                "Check your Internet Connection"
-//            case .invalidHTTPURLResponse:
-//                "Invalid Response"
-//            case .timedOut:
-//                "Server Request timed out"
-//            case .networkConnectionLost:
-//                "Connection with Server lost"
-//            case .urlError(_):
-//                "URL not initialised"
-//            case .invalidMimeType:
-//                "Invalid response from Server"
-//            case .informationalError(_), .redirectionalError(_), .serverError(_), .unknown(_):
-//                json["message"] as? String
-//            case .redirectionalError(_):
-//                json["message"] as? String
-//            case .serverError(_):
-//                json["message"] as? String
-//            case .unknown(_):
-//                json["message"] as? String
-//            }
-//            //                switch clientErrorEnum {
-//            //                case .unauthorized:
-//            //                    Singleton.sharedInstance.alerts.handle401StatueCode()
-//            //                case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
-//            //                    if let message = json["message"] as? String {
-//            //                        Singleton.sharedInstance.alerts.errorAlertWith(message: message)
-//            //                    } else if let errorMessage = json["error"] as? String {
-//            //                        Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-//            //                    } else if let errorMessages = json["error"] as? [String] {
-//            //                        var errorMessage = ""
-//            //                        for message in errorMessages {
-//            //                            if errorMessage != "" {
-//            //                                errorMessage = errorMessage + ", "
-//            //                            }
-//            //                            errorMessage = errorMessage + message
-//            //                        }
-//            //                        Singleton.sharedInstance.alerts.errorAlertWith(message: errorMessage)
-//            //                    } else{
-//            //                        Singleton.sharedInstance.alerts.errorAlertWith(message: "Server Error")
-//            //                    }
-//            //                }
-//        } catch {
-//            print("Can't Fetch JSON Response:", error)
-//        }
-        return ""
+        return errorMessage
     }
 }
 
@@ -126,6 +67,24 @@ extension JSONKeyValuePair {
             print("decoding error", error.localizedDescription)
         }
         return nil
+    }
+    
+    var getErrorMessage: String {
+        if let message = self["message"] as? String {
+            return message
+        } else if let error = self["error"] as? String {
+            return error
+        } else if let errorMessages = self["error"] as? [String] {
+            var error = ""
+            for message in errorMessages {
+                if error != "" {
+                    error = error + ", "
+                }
+                error = error + message
+            }
+            return error
+        }
+        return "Server Error"
     }
 }
 

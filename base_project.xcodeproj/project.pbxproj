@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1214C9402C4138EF00551FF9 /* CharacterDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1214C93F2C4138EF00551FF9 /* CharacterDataSource.swift */; };
+		123620122C512367004B5B77 /* AnimeDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123620112C512367004B5B77 /* AnimeDataSource.swift */; };
 		12BF29202C47B28C0023D96A /* CharacterRepositoryIMPL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BF291F2C47B28C0023D96A /* CharacterRepositoryIMPL.swift */; };
 		12BF29232C47B4EA0023D96A /* CharacterRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BF29222C47B4EA0023D96A /* CharacterRepositoryProtocol.swift */; };
 		12BF29272C4816CD0023D96A /* GetCharactersUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BF29262C4816CD0023D96A /* GetCharactersUseCase.swift */; };
@@ -77,6 +78,7 @@
 		08A4412AEB9CFF41E8531F21 /* Pods_base_project.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_base_project.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C47C2D1B4B8ACFA7722EA30 /* Pods-base_project.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-base_project.debug.xcconfig"; path = "Target Support Files/Pods-base_project/Pods-base_project.debug.xcconfig"; sourceTree = "<group>"; };
 		1214C93F2C4138EF00551FF9 /* CharacterDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDataSource.swift; sourceTree = "<group>"; };
+		123620112C512367004B5B77 /* AnimeDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeDataSource.swift; sourceTree = "<group>"; };
 		12BF291F2C47B28C0023D96A /* CharacterRepositoryIMPL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterRepositoryIMPL.swift; sourceTree = "<group>"; };
 		12BF29222C47B4EA0023D96A /* CharacterRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterRepositoryProtocol.swift; sourceTree = "<group>"; };
 		12BF29262C4816CD0023D96A /* GetCharactersUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCharactersUseCase.swift; sourceTree = "<group>"; };
@@ -169,6 +171,13 @@
 			path = DataSources;
 			sourceTree = "<group>";
 		};
+		123620102C512346004B5B77 /* Anime List */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Anime List";
+			sourceTree = "<group>";
+		};
 		12BF291E2C47B24C0023D96A /* RepositoryIMPL */ = {
 			isa = PBXGroup;
 			children = (
@@ -224,6 +233,7 @@
 			isa = PBXGroup;
 			children = (
 				1214C93F2C4138EF00551FF9 /* CharacterDataSource.swift */,
+				123620112C512367004B5B77 /* AnimeDataSource.swift */,
 			);
 			path = APIs;
 			sourceTree = "<group>";
@@ -380,6 +390,7 @@
 		1581A05D2898321300CD1DF0 /* SwiftUI Screens */ = {
 			isa = PBXGroup;
 			children = (
+				123620102C512346004B5B77 /* Anime List */,
 				12BF29242C47B7D40023D96A /* Characters List */,
 			);
 			path = "SwiftUI Screens";
@@ -701,6 +712,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				123620122C512367004B5B77 /* AnimeDataSource.swift in Sources */,
 				15C81438289973BD0029EA26 /* CharactersListViewModel.swift in Sources */,
 				1581A0512898277200CD1DF0 /* GeneralFunctions.swift in Sources */,
 				1581A053289827AB00CD1DF0 /* Singleton.swift in Sources */,

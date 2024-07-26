@@ -49,42 +49,32 @@ import Combine
             self.currentLength = self.characters.count
             self.getCharactersAS = .consumedWithSuccess
         case .failure(let error):
-            self.getCharactersAS = .consumedWithError
-//            switch error {
-//            case .dataSourceError(let dataSourceError):
-//                switch dataSourceError {
-//                case .apiRequestError(let apiRequestError):
-//                    switch apiRequestError {
-//                    case .internetNotConnected:
-//                        <#code#>
-//                    case .invalidHTTPURLResponse:
-//                        <#code#>
-//                    case .timedOut:
-//                        <#code#>
-//                    case .networkConnectionLost:
-//                        <#code#>
-//                    case .urlError(let statusCode):
-//                        <#code#>
-//                    case .invalidMimeType:
-//                        <#code#>
-//                    case .informationalError(let statusCode):
-//                        <#code#>
-//                    case .redirectionalError(let statusCode):
-//                        <#code#>
-//                    case .clientError(let statusCode):
-//                        <#code#>
-//                    case .serverError(let statusCode):
-//                        <#code#>
-//                    case .unknown(let statusCode):
-//                        <#code#>
-//                    }
-//                case .urlRequestError(_):
-//                    <#code#>
-//                case .decodingError:
-//                    <#code#>
-//                }
-//                
-//            }
+            switch error {
+            case .dataSourceError(let dataSourceError):
+                switch dataSourceError {
+                case .apiRequestError(let apiRequestError, let message):
+                    switch apiRequestError {
+                    case .internetNotConnected:
+                        Singleton.sharedInstance.alerts.internetNotConnectedAlert {
+                            Task { [weak self] in
+                                await self?.getCharacters(clearList: clearList)
+                            }
+                        }
+                    case .clientError(let clientError):
+                        if case .unauthorised = clientError {
+                            Singleton.sharedInstance.alerts.handle401StatueCode()
+                        }
+                    default:
+                        if let message {
+                            Singleton.sharedInstance.alerts.errorAlertWith(message: message)
+                        }
+                        break
+                    }
+                default:
+                    break
+                }
+                self.getCharactersAS = .consumedWithError
+            }
         }
     }
 }

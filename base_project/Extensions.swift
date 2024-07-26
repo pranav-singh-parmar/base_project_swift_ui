@@ -22,3 +22,26 @@ extension Bundle {
         return Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
     }
 }
+
+//MARK: - Data
+extension Data {
+    func toStruct<T: Decodable>(_ decodingStruct: T.Type) -> T? {
+        do {
+            return try Singleton.sharedInstance.jsonDecoder.decode(decodingStruct.self, from: self)
+        } catch let DecodingError.typeMismatch(type, context) {
+            print("Type '\(type)' mismatch:", context.debugDescription)
+            print("CodingPath:", context.codingPath)
+        } catch let DecodingError.keyNotFound(key, context) {
+            print("Key '\(key)' not found:", context.debugDescription)
+            print("CodingPath:", context.codingPath)
+        } catch let DecodingError.valueNotFound(value, context) {
+            print("Value '\(value)' not found:", context.debugDescription)
+            print("CodingPath:", context.codingPath)
+        } catch let DecodingError.dataCorrupted(context) {
+            print("Data Corrupted:", context.debugDescription)
+        } catch {
+            print(error.localizedDescription)
+        }
+        return nil
+    }
+}

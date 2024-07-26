@@ -229,11 +229,12 @@ extension URLRequest {
                 return .failure(printAndReturnAPIRequestError(.informationalError(statusCode: response.statusCode)), data)
             case 200...299:
                 printResponseDetailsTag(isStarted: false)
-                return .success(data)
+                return .success(statusCode: response.statusCode, data)
             case 300...399:
                 return .failure(printAndReturnAPIRequestError(.redirectionalError(statusCode: response.statusCode)), data)
             case 400...499:
-                return .failure(printAndReturnAPIRequestError(.clientError(statusCode: response.statusCode)), data)
+                let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: response.statusCode)
+                return .failure(printAndReturnAPIRequestError(.clientError(clientErrorEnum)), data)
             case 500...599:
                 return .failure(printAndReturnAPIRequestError(.serverError(statusCode: response.statusCode)), data)
             default:

@@ -36,28 +36,28 @@ enum APIRequestError: Error {
          invalidMimeType,
          informationalError(statusCode: Int),
          redirectionalError(statusCode: Int),
-         clientError(statusCode: Int),
+         clientError(ClientErrorsEnum),
          serverError(statusCode: Int),
          unknown(statusCode: Int)
 }
 
 enum ClientErrorsEnum {
-    case badRequest,
-         unauthorized,
-         paymentRequired,
-         forbidden,
-         notFound,
-         methodNotAllowed,
-         notAcceptable,
-         uriTooLong,
-         other
+    case badRequest,//400
+         unauthorised,//401
+         paymentRequired,//402
+         forbidden,//403
+         notFound,//404
+         methodNotAllowed,//405
+         notAcceptable,//406
+         uriTooLong,//414
+         other(Int)
     
     static func getCorrespondingValue(forStatusCode statusCode: Int) -> ClientErrorsEnum {
         switch statusCode {
         case 400:
             return .badRequest
         case 401:
-            return .unauthorized
+            return .unauthorised
         case 402:
             return .paymentRequired
         case 403:
@@ -71,14 +71,15 @@ enum ClientErrorsEnum {
         case 414:
             return .uriTooLong
         default:
-            return .other
+            return .other(statusCode)
         }
     }
 }
 
 enum DataSourceError: Error {
     case urlRequestError(URLRequestError),
-         apiRequestError(APIRequestError),
+         //error and error message
+         apiRequestError(APIRequestError, String?),
          decodingError
 }
 
@@ -92,7 +93,7 @@ enum RepositoryError: Error {
 enum APIRequestResult<Success, Failure> where Failure : Error {
     
     /// A success, storing a `Success` value.
-    case success(Success)
+    case success(statusCode: Int, Success)
     
     /// A failure, storing a `Failure` value.
     case failure(Failure, Data?)
