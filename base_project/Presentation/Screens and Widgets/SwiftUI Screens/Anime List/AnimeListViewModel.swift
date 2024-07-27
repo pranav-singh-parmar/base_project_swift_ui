@@ -1,53 +1,57 @@
 //
-//  CharactersListViewModel.swift
+//  AnimeListViewModel.swift
 //  base_project
 //
-//  Created by Pranav Singh on 02/08/22.
+//  Created by Pranav Singh Parmar on 25/07/24.
 //
 
 import Foundation
 import Combine
 
-@MainActor class CharactersListViewModel: ObservableObject {
+@MainActor class AnimeListViewModel: ObservableObject {
     
-    @Published private(set) var getCharactersAS: APIRequestStatus = .notConsumedOnce
+    @Published private(set) var getAnimeListAS: APIRequestStatus = .notConsumedOnce
     
-    private let getCharactersUC: any GetCharactersUseCaseProtocol
+    private let getAnimeListUC: any GetAnimeListUseCaseProtocol
     
     private var total = 0
-    private var currentLength = 0
-    private(set) var characters: [Character] = []
+    private var currentLength = 1
+    private(set) var animeList: [AnimeModel] = []
     
     var fetchedAllData: Bool {
         return total <= currentLength
     }
     
-    init(getCharactersUC: any GetCharactersUseCaseProtocol = GetCharactersUseCase.shared) {
-        self.getCharactersUC = getCharactersUC
+    init(getAnimeListUC: any GetAnimeListUseCaseProtocol = GetAnimeListUseCase.shared) {
+        self.getAnimeListUC = getAnimeListUC
     }
     
     func paginateWithIndex(_ index: Int) {
-        if getCharactersAS != .isBeingConsumed && index == currentLength - 1 && !fetchedAllData {
+        if getAnimeListAS != .isBeingConsumed && index == currentLength - 1 && !fetchedAllData {
             Task {
-                await getCharacters(clearList: false)
+                await getAnimeList(clearList: false)
             }
         }
     }
     
-    func getCharacters(clearList: Bool = true) async {
-        getCharactersAS = .isBeingConsumed
+    func getAnimeList(clearList: Bool = true) async {
+        getAnimeListAS = .isBeingConsumed
         
         if clearList {
-            currentLength = 0
-            characters.removeAll()
+            currentLength = 1
+            animeList.removeAll()
         }
         
-        switch await getCharactersUC.execute(withStartingFromOffset: currentLength, withLimitOf: 10) {
-        case .success(let characters):
+        switch await getAnimeListUC.execute(forName: "Dragon Ball Z",
+                                            startingFromOffset: currentLength,
+                                            withLimitOf: 10) {
+        case .success(let animeListResponse):
             self.total = 30
-            self.characters.append(contentsOf: characters)
-            self.currentLength = self.characters.count
-            self.getCharactersAS = .consumedWithSuccess
+            if let animeList = animeListResponse.data {
+                self.animeList.append(contentsOf: animeList)
+            }
+            self.currentLength = self.animeList.count
+            self.getAnimeListAS = .consumedWithSuccess
         case .failure(let error):
             switch error {
             case .dataSourceError(let dataSourceError):
@@ -57,7 +61,7 @@ import Combine
                     case .internetNotConnected:
                         Singleton.sharedInstance.alerts.internetNotConnectedAlert {
                             Task { [weak self] in
-                                await self?.getCharacters(clearList: clearList)
+                                await self?.getAnimeList(clearList: clearList)
                             }
                         }
                     case .clientError(let clientError):
@@ -73,7 +77,7 @@ import Combine
                 default:
                     break
                 }
-                self.getCharactersAS = .consumedWithError
+                self.getAnimeListAS = .consumedWithError
             }
         }
     }

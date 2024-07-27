@@ -26,10 +26,10 @@ enum BreakingBadURLs {
 
 //MARK: - AppURLs
 class AnimeURLs {
-    private static let baseURL = "https://www.breakingbadapi.com/"
+    private static let baseURL = "https://anime-db.p.rapidapi.com/"
     
     static func getAPIURL() -> String {
-        return baseURL + "api/"
+        return baseURL
     }
 }
 

@@ -23,7 +23,7 @@ extension URLRequest {
          withQueryParameters queryParameters: JSONKeyValuePair?) throws {
         do {
             try self.init(withHTTPMethod: httpMethod,
-                          forAppEndpoint: breakingBadEndpoint,
+                          forEndpoint: breakingBadEndpoint,
                           withQueryParameters: queryParameters)
         } catch {
             throw error
@@ -35,7 +35,19 @@ extension URLRequest {
          withQueryParameters queryParameters: JSONKeyValuePair?) throws {
         do {
             try self.init(withHTTPMethod: httpMethod,
-                          forAppEndpoint: breakingBadEndpoint,
+                          forEndpoint: breakingBadEndpoint,
+                          withQueryParameters: queryParameters)
+        } catch {
+            throw error
+        }
+    }
+    
+    init(ofHTTPMethod httpMethod: HTTPMethod,
+         forAnimeEndpoint animeEndpoint: AnimeAPIEndpoints,
+         withQueryParameters queryParameters: JSONKeyValuePair?) throws {
+        do {
+            try self.init(withHTTPMethod: httpMethod,
+                          forEndpoint: animeEndpoint,
                           withQueryParameters: queryParameters)
         } catch {
             throw error
@@ -43,7 +55,7 @@ extension URLRequest {
     }
     
     private init(withHTTPMethod httpMethod: HTTPMethod,
-                 forAppEndpoint appEndpoint: APIEndpointsProtocol,
+                 forEndpoint appEndpoint: APIEndpointsProtocol,
                  withQueryParameters queryParameters: JSONKeyValuePair?) throws { //throws(APIRequestError) to be in Swift6
         let urlString = appEndpoint.getURLString()
         guard let url = URL(string: urlString) else {
@@ -97,7 +109,7 @@ extension URLRequest {
         
         if let headers {
             headers.forEach { key, value in
-                self.addValue(key, forHTTPHeaderField: "\(value)")
+                self.addValue("\(value)", forHTTPHeaderField: key)
             }
         }
     }

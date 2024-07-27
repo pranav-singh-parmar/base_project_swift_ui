@@ -39,5 +39,5 @@ enum AnimeAPIEndpoints: String, APIEndpointsProtocol {
         return AnimeURLs.getAPIURL() + self.rawValue
     }
     
-    case characters = "characters"
+    case anime = "anime"
 }

@@ -18,10 +18,10 @@ class CharacterDataSourceIMPL: CharacterDataSourceProtocol {
     
     func getCharacters(startingFromOffset offset: Int, withLimitOf limit: Int) async -> DataSourceResult<Characters, DataSourceError> {
         
-        let queryParameters = ["offset": offset,
-                               "limit": limit] as JSONKeyValuePair
-        
         do {
+            let queryParameters = ["offset": offset,
+                                   "limit": limit] as JSONKeyValuePair
+            
             var urlRequest = try URLRequest(ofHTTPMethod: .get,
                                             forBreakingBadEndpoint: .characters,
                                             withQueryParameters: queryParameters)

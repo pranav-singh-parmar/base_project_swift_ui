@@ -8,7 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		1214C9402C4138EF00551FF9 /* CharacterDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1214C93F2C4138EF00551FF9 /* CharacterDataSource.swift */; };
-		123620122C512367004B5B77 /* AnimeDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123620112C512367004B5B77 /* AnimeDataSource.swift */; };
+		123620122C512367004B5B77 /* AnimeListDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123620112C512367004B5B77 /* AnimeListDataSourceProtocol.swift */; };
+		123620142C522AA4004B5B77 /* AnimeListRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123620132C522AA4004B5B77 /* AnimeListRepositoryProtocol.swift */; };
+		123620162C522AC6004B5B77 /* AnimeRepositoryIMPL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123620152C522AC6004B5B77 /* AnimeRepositoryIMPL.swift */; };
+		123620182C522B89004B5B77 /* GetAnimeListUseCaseProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123620172C522B89004B5B77 /* GetAnimeListUseCaseProtocol.swift */; };
+		1236201A2C522BD1004B5B77 /* GetAnimeListUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123620192C522BD1004B5B77 /* GetAnimeListUseCase.swift */; };
+		1236201C2C522C7E004B5B77 /* AnimeListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236201B2C522C7E004B5B77 /* AnimeListViewModel.swift */; };
+		1236201E2C522D09004B5B77 /* AnimeListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236201D2C522D09004B5B77 /* AnimeListScreen.swift */; };
+		123620202C522D76004B5B77 /* AnimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236201F2C522D76004B5B77 /* AnimeCell.swift */; };
+		123620222C5233CA004B5B77 /* AnimeListResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123620212C5233CA004B5B77 /* AnimeListResponse.swift */; };
 		12BF29202C47B28C0023D96A /* CharacterRepositoryIMPL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BF291F2C47B28C0023D96A /* CharacterRepositoryIMPL.swift */; };
 		12BF29232C47B4EA0023D96A /* CharacterRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BF29222C47B4EA0023D96A /* CharacterRepositoryProtocol.swift */; };
 		12BF29272C4816CD0023D96A /* GetCharactersUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12BF29262C4816CD0023D96A /* GetCharactersUseCase.swift */; };
@@ -78,7 +86,15 @@
 		08A4412AEB9CFF41E8531F21 /* Pods_base_project.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_base_project.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C47C2D1B4B8ACFA7722EA30 /* Pods-base_project.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-base_project.debug.xcconfig"; path = "Target Support Files/Pods-base_project/Pods-base_project.debug.xcconfig"; sourceTree = "<group>"; };
 		1214C93F2C4138EF00551FF9 /* CharacterDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDataSource.swift; sourceTree = "<group>"; };
-		123620112C512367004B5B77 /* AnimeDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeDataSource.swift; sourceTree = "<group>"; };
+		123620112C512367004B5B77 /* AnimeListDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeListDataSourceProtocol.swift; sourceTree = "<group>"; };
+		123620132C522AA4004B5B77 /* AnimeListRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeListRepositoryProtocol.swift; sourceTree = "<group>"; };
+		123620152C522AC6004B5B77 /* AnimeRepositoryIMPL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeRepositoryIMPL.swift; sourceTree = "<group>"; };
+		123620172C522B89004B5B77 /* GetAnimeListUseCaseProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAnimeListUseCaseProtocol.swift; sourceTree = "<group>"; };
+		123620192C522BD1004B5B77 /* GetAnimeListUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetAnimeListUseCase.swift; sourceTree = "<group>"; };
+		1236201B2C522C7E004B5B77 /* AnimeListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeListViewModel.swift; sourceTree = "<group>"; };
+		1236201D2C522D09004B5B77 /* AnimeListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeListScreen.swift; sourceTree = "<group>"; };
+		1236201F2C522D76004B5B77 /* AnimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeCell.swift; sourceTree = "<group>"; };
+		123620212C5233CA004B5B77 /* AnimeListResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimeListResponse.swift; sourceTree = "<group>"; };
 		12BF291F2C47B28C0023D96A /* CharacterRepositoryIMPL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterRepositoryIMPL.swift; sourceTree = "<group>"; };
 		12BF29222C47B4EA0023D96A /* CharacterRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterRepositoryProtocol.swift; sourceTree = "<group>"; };
 		12BF29262C4816CD0023D96A /* GetCharactersUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCharactersUseCase.swift; sourceTree = "<group>"; };
@@ -174,6 +190,9 @@
 		123620102C512346004B5B77 /* Anime List */ = {
 			isa = PBXGroup;
 			children = (
+				1236201B2C522C7E004B5B77 /* AnimeListViewModel.swift */,
+				1236201D2C522D09004B5B77 /* AnimeListScreen.swift */,
+				1236201F2C522D76004B5B77 /* AnimeCell.swift */,
 			);
 			path = "Anime List";
 			sourceTree = "<group>";
@@ -182,6 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				12BF291F2C47B28C0023D96A /* CharacterRepositoryIMPL.swift */,
+				123620152C522AC6004B5B77 /* AnimeRepositoryIMPL.swift */,
 			);
 			path = RepositoryIMPL;
 			sourceTree = "<group>";
@@ -190,6 +210,7 @@
 			isa = PBXGroup;
 			children = (
 				12BF29222C47B4EA0023D96A /* CharacterRepositoryProtocol.swift */,
+				123620132C522AA4004B5B77 /* AnimeListRepositoryProtocol.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -208,6 +229,7 @@
 			isa = PBXGroup;
 			children = (
 				12BF29262C4816CD0023D96A /* GetCharactersUseCase.swift */,
+				123620192C522BD1004B5B77 /* GetAnimeListUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -225,6 +247,7 @@
 			isa = PBXGroup;
 			children = (
 				12BF29292C4817170023D96A /* GetCharactersUseCaseProtocol.swift */,
+				123620172C522B89004B5B77 /* GetAnimeListUseCaseProtocol.swift */,
 			);
 			path = "Use Cases";
 			sourceTree = "<group>";
@@ -233,7 +256,7 @@
 			isa = PBXGroup;
 			children = (
 				1214C93F2C4138EF00551FF9 /* CharacterDataSource.swift */,
-				123620112C512367004B5B77 /* AnimeDataSource.swift */,
+				123620112C512367004B5B77 /* AnimeListDataSourceProtocol.swift */,
 			);
 			path = APIs;
 			sourceTree = "<group>";
@@ -432,6 +455,7 @@
 			isa = PBXGroup;
 			children = (
 				157A1123289AC7890035636F /* CharactersModel.swift */,
+				123620212C5233CA004B5B77 /* AnimeListResponse.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -712,16 +736,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				123620122C512367004B5B77 /* AnimeDataSource.swift in Sources */,
+				123620122C512367004B5B77 /* AnimeListDataSourceProtocol.swift in Sources */,
+				123620162C522AC6004B5B77 /* AnimeRepositoryIMPL.swift in Sources */,
 				15C81438289973BD0029EA26 /* CharactersListViewModel.swift in Sources */,
 				1581A0512898277200CD1DF0 /* GeneralFunctions.swift in Sources */,
 				1581A053289827AB00CD1DF0 /* Singleton.swift in Sources */,
+				1236201C2C522C7E004B5B77 /* AnimeListViewModel.swift in Sources */,
 				15ED1AA628A406FA008A92B2 /* CharacterCell.swift in Sources */,
 				1581A0462898266800CD1DF0 /* URLRequest.swift in Sources */,
 				12BF29232C47B4EA0023D96A /* CharacterRepositoryProtocol.swift in Sources */,
 				1214C9402C4138EF00551FF9 /* CharacterDataSource.swift in Sources */,
+				1236201E2C522D09004B5B77 /* AnimeListScreen.swift in Sources */,
 				1598429E2C3A548C00DA5E52 /* Extensions.swift in Sources */,
 				1581A04D2898271700CD1DF0 /* PresentationConstants.swift in Sources */,
+				123620182C522B89004B5B77 /* GetAnimeListUseCaseProtocol.swift in Sources */,
 				12BF29202C47B28C0023D96A /* CharacterRepositoryIMPL.swift in Sources */,
 				15C3EBC12B1F922200E12469 /* ShimmerView.swift in Sources */,
 				15C3EBC52B1F922200E12469 /* ImagePicker.swift in Sources */,
@@ -736,13 +764,17 @@
 				1581A04B289826F700CD1DF0 /* Alerts.swift in Sources */,
 				1581A01D2898263100CD1DF0 /* ContentView.swift in Sources */,
 				15C3EBC42B1F922200E12469 /* NetworkImageModifier.swift in Sources */,
+				123620202C522D76004B5B77 /* AnimeCell.swift in Sources */,
+				123620142C522AA4004B5B77 /* AnimeListRepositoryProtocol.swift in Sources */,
 				15C3EBC32B1F922200E12469 /* ListFooterProgressView.swift in Sources */,
+				1236201A2C522BD1004B5B77 /* GetAnimeListUseCase.swift in Sources */,
 				12BF29272C4816CD0023D96A /* GetCharactersUseCase.swift in Sources */,
 				157A1124289AC7890035636F /* CharactersModel.swift in Sources */,
 				1581A0482898269F00CD1DF0 /* InternetConnectivityViewModel.swift in Sources */,
 				1581A05628982A7A00CD1DF0 /* AppEnvironmentObject.swift in Sources */,
 				1581A01B2898263100CD1DF0 /* base_projectApp.swift in Sources */,
 				157A1D9728BD129500DE0678 /* FileModel.swift in Sources */,
+				123620222C5233CA004B5B77 /* AnimeListResponse.swift in Sources */,
 				12BF292A2C4817170023D96A /* GetCharactersUseCaseProtocol.swift in Sources */,
 				159842992C3A4EA900DA5E52 /* DataConstants.swift in Sources */,
 			);

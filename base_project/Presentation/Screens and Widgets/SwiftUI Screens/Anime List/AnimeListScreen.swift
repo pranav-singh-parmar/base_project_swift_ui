@@ -1,15 +1,15 @@
 //
-//  CharactersListScreen.swift
+//  AnimeListScreen.swift
 //  base_project
 //
-//  Created by Pranav Singh on 02/08/22.
+//  Created by Pranav Singh Parmar on 25/07/24.
 //
 
 import SwiftUI
 
-struct CharactersListScreen: View {
+struct AnimeListScreen: View {
     
-    @StateObject private var charactersListVM = CharactersListViewModel()
+    @StateObject private var animeListVM = AnimeListViewModel()
     
     @State private var reader: ScrollViewProxy?
     
@@ -17,22 +17,22 @@ struct CharactersListScreen: View {
     
     var body: some View {
         ZStack {
-            let isEmpty = charactersListVM.characters.isEmpty
-            if charactersListVM.getCharactersAS.isAPIConsumed || !isEmpty {
+            let isEmpty = animeListVM.animeList.isEmpty
+            if animeListVM.getAnimeListAS.isAPIConsumed || !isEmpty {
                 if isEmpty {
-                    EmptyListView(text: "No Characters Found")
+                    EmptyListView(text: "No Anime's Found")
                 } else {
                     ScrollViewReader { reader in
                         List {
-                            Section(footer: !charactersListVM.fetchedAllData ?
+                            Section(footer: !animeListVM.fetchedAllData ?
                                     ListFooterProgressView()
                                     : nil) {
-                                ForEach(Array(charactersListVM.characters.enumerated()), id: \.1) { index, character in
-                                    CharacterCell(character)
+                                ForEach(Array(animeListVM.animeList.enumerated()), id: \.1) { index, animeModel in
+                                    AnimeCell(animeModel)
                                         .padding(.horizontal, padding / 2)
                                         .padding(.vertical, padding)
                                         .onAppear {
-                                            charactersListVM.paginateWithIndex(index)
+                                            animeListVM.paginateWithIndex(index)
                                         }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                                         .listRowBackground(Color.clear)
                                         .id(index)
@@ -61,18 +61,16 @@ struct CharactersListScreen: View {
                     }.disabled(true)
                 }
             }
-        }.navigationBarTitle("Breaking Bad Cast")
+        }.navigationBarTitle("Anime List")
             .onAppear {
                 reader?.scrollTo(0)
                 Task {
-                    await charactersListVM.getCharacters()
+                    await animeListVM.getAnimeList()
                 }
             }
     }
 }
 
-struct CharactersListScreen_Previews: PreviewProvider {
-    static var previews: some View {
-        CharactersListScreen()
-    }
+#Preview {
+    AnimeListScreen()
 }
