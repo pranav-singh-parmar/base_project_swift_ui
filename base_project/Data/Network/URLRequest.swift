@@ -20,7 +20,7 @@ extension URLRequest {
     //MARK: - Initializers
     init(ofHTTPMethod httpMethod: HTTPMethod,
          forBreakingBadEndpoint breakingBadEndpoint: BreakingBadEndpoints,
-         withQueryParameters queryParameters: JSONKeyValuePair?) throws {
+         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
         do {
             try self.init(withHTTPMethod: httpMethod,
                           forEndpoint: breakingBadEndpoint,
@@ -32,7 +32,7 @@ extension URLRequest {
     
     init(ofHTTPMethod httpMethod: HTTPMethod,
          forBreakingBadEndpointWithParameters breakingBadEndpoint: BreakingBadEndpointsWithParameters,
-         withQueryParameters queryParameters: JSONKeyValuePair?) throws {
+         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
         do {
             try self.init(withHTTPMethod: httpMethod,
                           forEndpoint: breakingBadEndpoint,
@@ -44,7 +44,7 @@ extension URLRequest {
     
     init(ofHTTPMethod httpMethod: HTTPMethod,
          forAnimeEndpoint animeEndpoint: AnimeAPIEndpoints,
-         withQueryParameters queryParameters: JSONKeyValuePair?) throws {
+         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
         do {
             try self.init(withHTTPMethod: httpMethod,
                           forEndpoint: animeEndpoint,
@@ -182,11 +182,11 @@ extension URLRequest {
             self.httpBody = body
             self.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
             self.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
-            
-            print("ParameterEncoding:", parameterEncoding)
-            print("Parameters:", parameters ?? [:])
-            print("Body Data:", self.httpBody ?? Data())
         }
+        
+        print("ParameterEncoding:", parameterEncoding)
+        print("Parameters:", parameters ?? [:])
+        print("Body Data:", self.httpBody ?? Data())
     }
     
     //MARK: - Hit API

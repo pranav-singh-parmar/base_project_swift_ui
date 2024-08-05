@@ -9,6 +9,18 @@ import Foundation
 
 //MARK: - Data
 extension Data {
+    var toJSONKeyValuePair: JSONKeyValuePair? {
+        do {
+            let jsonConvert = try JSONSerialization.jsonObject(with: self, options: [])
+            if let json = jsonConvert as? JSONKeyValuePair {
+                return json
+            }
+        } catch {
+            print("Can't Get JSON Response:", error)
+        }
+        return nil
+    }
+    
     mutating func appendString(_ string: String) {
         if let data = string.data(using: .utf8) {
             append(data)
@@ -17,22 +29,20 @@ extension Data {
     
     func getErrorMessageFromJSONData(withAPIRequestError apiRequestError: APIRequestError) -> String? {
         let errorMessage: String?
-        do {
-            let jsonConvert = try JSONSerialization.jsonObject(with: self, options: [])
-            let json = (jsonConvert as? JSONKeyValuePair) ?? [:]
+        if let json = self.toJSONKeyValuePair {
             switch apiRequestError {
-            //            case .internetNotConnected:
-            //                errorMessage = "Check your Internet Connection"
-            //            case .invalidHTTPURLResponse:
-            //                errorMessage = "Invalid Response"
-            //            case .timedOut:
-            //                errorMessage = "Server Request timed out"
-            //            case .networkConnectionLost:
-            //                errorMessage = "Connection with Server lost"
-            //            case .urlError(_):
-            //                errorMessage = "URL not initialised"
-            //            case .invalidMimeType:
-            //                errorMessage = "Invalid response from Server"
+                //            case .internetNotConnected:
+                //                errorMessage = "Check your Internet Connection"
+                //            case .invalidHTTPURLResponse:
+                //                errorMessage = "Invalid Response"
+                //            case .timedOut:
+                //                errorMessage = "Server Request timed out"
+                //            case .networkConnectionLost:
+                //                errorMessage = "Connection with Server lost"
+                //            case .urlError(_):
+                //                errorMessage = "URL not initialised"
+                //            case .invalidMimeType:
+                //                errorMessage = "Invalid response from Server"
             case .clientError(let clientErrorEnum):
                 switch clientErrorEnum {
                 case .unauthorised:
@@ -45,9 +55,8 @@ extension Data {
             default:
                 errorMessage = nil
             }
-        } catch {
+        } else {
             errorMessage = nil
-            print("Can't Fetch JSON Response:", error)
         }
         return errorMessage
     }

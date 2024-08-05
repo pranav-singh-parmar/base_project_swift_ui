@@ -9,10 +9,10 @@ import Foundation
 
 //MARK: - AppInfo
 struct AppInfo {
-    static let bundleIdentifier = Bundle.main.bundleIdentifier
+    static let bundleIdentifier = Bundle.main.getBundleIdentifier
     // static let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String
-    static let appCurrentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    static let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
+    static let appCurrentVersion = Bundle.main.appCurrentVersion
+    static let appName = Bundle.main.appName
     static var appId = 0
 }
 
