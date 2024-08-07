@@ -67,6 +67,22 @@ let a: Dictionary<String, Any> = [:]
 typealias JSONKeyValuePair = [String: Any]
 
 extension JSONKeyValuePair {
+    func toJSONStringFormat() -> String? {
+        do {
+            // Serialize to JSON
+            let jsonData = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
+            
+            // Convert to a string and print
+            if let jsonString = String(data: jsonData, encoding: String.Encoding.utf8) {
+                return jsonString
+            }
+            print("Could not convert to string")
+        } catch {
+            print("Could not print parameters, Error -> \(error)")
+        }
+        return nil
+    }
+    
     func toStruct<T: Decodable>(_ decodingStruct: T.Type) -> T? {
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)

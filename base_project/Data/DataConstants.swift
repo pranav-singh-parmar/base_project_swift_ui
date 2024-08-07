@@ -100,6 +100,16 @@ enum APIRequestResult<Success, Failure> where Failure : Error {
 }
 
 @frozen
+enum DownloadRequestResult<Success, Failure> where Failure : Error {
+    
+    /// A success, storing a `Success` value.
+    case success(statusCode: Int, Success)
+    
+    /// A failure, storing a `Failure` value.
+    case failure(Failure)
+}
+
+@frozen
 enum DataSourceResult<Success, Failure> where Failure : Error {
     
     /// A success, storing a `Success` value.

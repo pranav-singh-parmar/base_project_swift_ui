@@ -17,12 +17,12 @@ extension URLRequest {
         return self.url?.absoluteString ?? "URL not set"
     }
     
-    //MARK: - Initializers
+    //MARK: - Initialisers
     init(ofHTTPMethod httpMethod: HTTPMethod,
          forBreakingBadEndpoint breakingBadEndpoint: BreakingBadEndpoints,
          withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
         do {
-            try self.init(withHTTPMethod: httpMethod,
+            try self.init(ofHTTPMethod: httpMethod,
                           forEndpoint: breakingBadEndpoint,
                           withQueryParameters: queryParameters)
         } catch {
@@ -34,7 +34,7 @@ extension URLRequest {
          forBreakingBadEndpointWithParameters breakingBadEndpoint: BreakingBadEndpointsWithParameters,
          withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
         do {
-            try self.init(withHTTPMethod: httpMethod,
+            try self.init(ofHTTPMethod: httpMethod,
                           forEndpoint: breakingBadEndpoint,
                           withQueryParameters: queryParameters)
         } catch {
@@ -46,7 +46,7 @@ extension URLRequest {
          forAnimeEndpoint animeEndpoint: AnimeAPIEndpoints,
          withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
         do {
-            try self.init(withHTTPMethod: httpMethod,
+            try self.init(ofHTTPMethod: httpMethod,
                           forEndpoint: animeEndpoint,
                           withQueryParameters: queryParameters)
         } catch {
@@ -54,9 +54,9 @@ extension URLRequest {
         }
     }
     
-    private init(withHTTPMethod httpMethod: HTTPMethod,
+    private init(ofHTTPMethod httpMethod: HTTPMethod,
                  forEndpoint appEndpoint: APIEndpointsProtocol,
-                 withQueryParameters queryParameters: JSONKeyValuePair?) throws { //throws(APIRequestError) to be in Swift6
+                 withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws { //throws(APIRequestError) to be in Swift6
         let urlString = appEndpoint.getURLString()
         guard let url = URL(string: urlString) else {
             //print(URLRequest.apiErrorTAG, "Cannot Initiate URL with String", urlString)
@@ -104,7 +104,7 @@ extension URLRequest {
         self.addValue("iOS", forHTTPHeaderField: "device")
         self.addValue("application/json", forHTTPHeaderField: "Accept")
         if shouldAddAuthToken {
-            //urlRequest?.addValue("token", forHTTPHeaderField: "Authorization")
+            //urlRequest?.addValue("token", forHTTPHeaderField: "Authorisation")
         }
         
         if let headers {
@@ -185,14 +185,17 @@ extension URLRequest {
         }
         
         print("ParameterEncoding:", parameterEncoding)
-        print("Parameters:", parameters ?? [:])
+        #if DEBUG
+        print("Parameters:")
+        print(parameters?.toJSONStringFormat() ?? "")
+        #endif
         print("Body Data:", self.httpBody ?? Data())
     }
     
     //MARK: - Hit API
     func sendAPIRequest() async -> APIRequestResult<Data, APIRequestError> {
         
-        print("Headers:", self.allHTTPHeaderFields ?? [:])
+        printHeaders()
         printRequestDetailsTag(isStarted: false)
         
         guard Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet else {
@@ -228,9 +231,9 @@ extension URLRequest {
             #if DEBUG
             do {
                 let jsonConvert = try JSONSerialization.jsonObject(with: data, options: [])
-                let json = jsonConvert as? [String: AnyObject]
+                let json = jsonConvert as? [String: Any]
                 print("Json Response:")
-                print(json ?? [:])
+                print(json?.toJSONStringFormat() ?? "")
             } catch {
                 print("Can't Fetch JSON Response:", error)
             }
@@ -283,7 +286,82 @@ extension URLRequest {
         //        }
     }
     
-    //MARK: - Error Publishers
+    func downloadFile() async -> DownloadRequestResult<URL, APIRequestError> {
+        
+        printHeaders()
+        printRequestDetailsTag(isStarted: false)
+        
+        guard Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet else {
+            return .failure(printAndReturnAPIRequestError(.internetNotConnected))
+        }
+        
+        do {
+            let (location, response) = try await URLSession
+                .shared
+                .download(for: self)
+            
+            printResponseDetailsTag(isStarted: true)
+            
+            guard let response = response as? HTTPURLResponse else {
+                return .failure(printAndReturnAPIRequestError(.invalidHTTPURLResponse))
+            }
+            
+            print("Status Code:", response.statusCode)
+            
+            //            guard let mimeType = response.mimeType, mimeType == "application/json" else {
+            //                print("Wrong MIME type!", response.mimeType ?? "")
+            //
+            //                if let paragraphs = String(data: data, encoding: .utf8)?.components(separatedBy: .newlines) {
+            //                    print("Data received from API:")
+            //                    for line in paragraphs {
+            //                        print(line)
+            //                    }
+            //                } else {
+            //                    print("Default Message: Not able to read data")
+            //                }
+            //
+            //                return .failure(printAndReturnAPIRequestError(.invalidMimeType), data)
+            //            }
+            
+            switch response.statusCode {
+            case 100...199:
+                return .failure(printAndReturnAPIRequestError(.informationalError(statusCode: response.statusCode)))
+            case 200...299:
+                printResponseDetailsTag(isStarted: false)
+                return .success(statusCode: response.statusCode, location)
+            case 300...399:
+                return .failure(printAndReturnAPIRequestError(.redirectionalError(statusCode: response.statusCode)))
+            case 400...499:
+                let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: response.statusCode)
+                return .failure(printAndReturnAPIRequestError(.clientError(clientErrorEnum)))
+            case 500...599:
+                return .failure(printAndReturnAPIRequestError(.serverError(statusCode: response.statusCode)))
+            default:
+                return .failure(printAndReturnAPIRequestError(.unknown(statusCode: response.statusCode)))
+            }
+        } catch let error {
+            printResponseDetailsTag(isStarted: true)
+            print("Error Localised Description:", error.localizedDescription)
+            let errorCode = (error as NSError).code
+            switch errorCode {
+            case NSURLErrorTimedOut:
+                return .failure(printAndReturnAPIRequestError(.timedOut))
+            case NSURLErrorNotConnectedToInternet:
+                return .failure(printAndReturnAPIRequestError(.internetNotConnected))
+            case NSURLErrorNetworkConnectionLost:
+                return .failure(printAndReturnAPIRequestError(.networkConnectionLost))
+            default:
+                return .failure(printAndReturnAPIRequestError(.urlError(errorCode: errorCode)))
+            }
+        }
+    }
+    
+    //MARK: - Print Related Functions
+    private func printHeaders() {
+        print("Headers:")
+        print((self.allHTTPHeaderFields as JSONKeyValuePair?)?.toJSONStringFormat() ?? "")
+    }
+    
     private func printAndReturnAPIRequestError(_ apiError: APIRequestError) -> APIRequestError {
         printApiError(apiError)
         return apiError
