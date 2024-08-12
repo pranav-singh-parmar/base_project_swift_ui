@@ -70,7 +70,8 @@ extension JSONKeyValuePair {
     func toJSONStringFormat() -> String? {
         do {
             // Serialize to JSON
-            let jsonData = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
+            let jsonData = try JSONSerialization.data(withJSONObject: self,
+                                                      options: [.prettyPrinted, .withoutEscapingSlashes])
             
             // Convert to a string and print
             if let jsonString = String(data: jsonData, encoding: String.Encoding.utf8) {

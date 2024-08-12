@@ -72,7 +72,8 @@ extension URLRequest {
             
             self.url = url
             printRequestDetailsTag(isStarted: true)
-            print("Query Parameters:", queryParameters)
+            print("Query Parameters:")
+            print(queryParameters.toJSONStringFormat() ?? "")
             print("URL with Query Parameter:", self.getURLString)
         } else {
             printRequestDetailsTag(isStarted: true)
@@ -212,6 +213,7 @@ extension URLRequest {
             guard let response = response as? HTTPURLResponse else {
                 return .failure(printAndReturnAPIRequestError(.invalidHTTPURLResponse), data)
             }
+            print("Status Code:", response.statusCode)
             
             guard let mimeType = response.mimeType, mimeType == "application/json" else {
                 print("Wrong MIME type!", response.mimeType ?? "")
@@ -305,7 +307,6 @@ extension URLRequest {
             guard let response = response as? HTTPURLResponse else {
                 return .failure(printAndReturnAPIRequestError(.invalidHTTPURLResponse))
             }
-            
             print("Status Code:", response.statusCode)
             
             //            guard let mimeType = response.mimeType, mimeType == "application/json" else {
