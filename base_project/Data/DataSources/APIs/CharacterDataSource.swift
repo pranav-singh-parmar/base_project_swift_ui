@@ -25,7 +25,7 @@ class CharacterDataSourceIMPL: CharacterDataSourceProtocol {
             var urlRequest = try URLRequest(ofHTTPMethod: .get,
                                             forBreakingBadEndpoint: .characters,
                                             withQueryParameters: queryParameters)
-            urlRequest.addHeaders()
+            urlRequest.requestResponse(in: .json)
             
             switch await urlRequest.sendAPIRequest() {
             case .success(_, let data):

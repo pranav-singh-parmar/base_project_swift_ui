@@ -100,19 +100,44 @@ extension URLRequest {
     }
     
     //MARK: - Headers
-    mutating func addHeaders(_ headers: JSONKeyValuePair? = nil, shouldAddAuthToken: Bool = false) {
-        //set headers
-        self.addValue("iOS", forHTTPHeaderField: "device")
-        self.addValue("application/json", forHTTPHeaderField: "Accept")
-        if shouldAddAuthToken {
-            //urlRequest?.addValue("token", forHTTPHeaderField: "Authorisation")
+    mutating func addHeader(withKey key: String, andValue value: String) {
+        self.addValue(value, forHTTPHeaderField: key)
+    }
+    
+    mutating func requestResponse(in mimeType: MimeTypeEnum) {
+        self.addHeader(withKey: "Accept", andValue: mimeType.rawValue)
+    }
+    
+    mutating func addAuthorisationToken(_ token: String) {
+        self.addHeader(withKey: "Authorisation", andValue: token)
+    }
+    
+    private mutating func setContentTypeHeader(to contentTypeEnum: ContentTypeEnum) {
+        let keyName = "Content-Type"
+        switch contentTypeEnum {
+        case .json:
+            self.addHeader(withKey: keyName, andValue: MimeTypeEnum.json.rawValue)
+        case .urlFormEncoded:
+            self.addHeader(withKey: keyName, andValue: "application/x-www-form-urlencoded")
+        case .multipartFormData(let boundary, let count):
+            self.addHeader(withKey: keyName, andValue:  "multipart/form-data; boundary=\(boundary)")
+            self.addHeader(withKey: "Content-Length", andValue: "\(count)")
         }
+    }
+    
+    mutating func addHeaders(_ headers: [String: String]? = nil) {
+        //set headers
+        self.addHeader(withKey: "device", andValue: "iOS")
         
         if let headers {
             headers.forEach { key, value in
-                self.addValue("\(value)", forHTTPHeaderField: key)
+                self.addHeader(withKey: key, andValue: value)
             }
         }
+    }
+    
+    func getHeaderValueForKey(_ key: String) -> String? {
+        return self.allHTTPHeaderFields?.first(where: { $0.key == key })?.value
     }
     
     //MARK: - Parameters
@@ -124,7 +149,7 @@ extension URLRequest {
                 do {
                     let jsonData = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
                     self.httpBody = jsonData
-                    self.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                    self.setContentTypeHeader(to: .json)
                 } catch {
                     print("error in \(urlString) with parameterEncoding \(parameterEncoding)", error.localizedDescription)
                 }
@@ -135,7 +160,7 @@ extension URLRequest {
                 let formEncodedString = urlComponents?.percentEncodedQuery
                 if let formEncodedData = formEncodedString?.data(using: .utf8) {
                     self.httpBody = formEncodedData
-                    self.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+                    self.setContentTypeHeader(to: .urlFormEncoded)
                 } else {
                     print("error in \(urlString) with parameterEncoding \(parameterEncoding)")
                 }
@@ -181,8 +206,7 @@ extension URLRequest {
             body.appendString("--\(boundary)--\(lineBreak)")
             
             self.httpBody = body
-            self.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-            self.addValue("\(body.count)", forHTTPHeaderField: "Content-Length")
+            self.setContentTypeHeader(to: .multipartFormData(withBoundary: boundary, andCount: body.count))
         }
         
         print("ParameterEncoding:", parameterEncoding)
@@ -217,8 +241,15 @@ extension URLRequest {
             }
             print("Status Code:", response.statusCode)
             
-            guard let mimeType = response.mimeType, mimeType == "application/json" else {
-                print("Wrong MIME type!", response.mimeType ?? "")
+            guard let mimeType = response.mimeType else {
+                return .failure(printAndReturnAPIRequestError(.missingMimeType), data)
+            }
+            
+            if let accept = self.getHeaderValueForKey("Accept"),
+               accept != mimeType {
+                print("Wrong MIME type!")
+                print("Accept Key sent in header:", accept)
+                print("MimeType received in Response:", mimeType)
                 
                 if let paragraphs = String(data: data, encoding: .utf8)?.components(separatedBy: .newlines) {
                     print("Data received from API:")
@@ -229,7 +260,7 @@ extension URLRequest {
                     print("Default Message: Not able to read data")
                 }
                 
-                return .failure(printAndReturnAPIRequestError(.invalidMimeType), data)
+                return .failure(printAndReturnAPIRequestError(.mimeTypeMismatched), data)
             }
             
             #if DEBUG

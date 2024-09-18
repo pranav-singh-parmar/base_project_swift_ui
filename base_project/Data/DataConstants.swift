@@ -12,6 +12,18 @@ enum HTTPMethod: String {
     case get, post, put, delete
 }
 
+enum MimeTypeEnum: String {
+    case json = "application/json",
+         text = "text/plain",
+         html = "text/html"
+}
+
+enum ContentTypeEnum {
+    case json,
+         urlFormEncoded,
+         multipartFormData(withBoundary: String, andCount: Int)
+}
+
 enum ParameterEncoding: String {
     case jsonBody, urlFormEncoded, formData
 }
@@ -33,7 +45,8 @@ enum APIRequestError: Error {
          timedOut,
          networkConnectionLost,
          urlError(errorCode: Int),
-         invalidMimeType,
+         missingMimeType,
+         mimeTypeMismatched,
          informationalError(statusCode: Int),
          redirectionalError(statusCode: Int),
          clientError(ClientErrorsEnum),
