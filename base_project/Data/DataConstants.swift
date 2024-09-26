@@ -18,16 +18,13 @@ enum MimeTypeEnum: String {
          html = "text/html"
 }
 
-enum ContentTypeEnum {
+enum ParameterEncodingEnum {
     case json,
          urlFormEncoded,
          multipartFormData(withBoundary: String, andCount: Int)
 }
 
-enum ParameterEncoding: String {
-    case jsonBody, urlFormEncoded, formData
-}
-
+//MARK: - Error Enums
 enum URLRequestError: Error {
     case invalidURL,
          invalidQueryParameters
@@ -100,8 +97,7 @@ enum RepositoryError: Error {
     case dataSourceError(DataSourceError)
 }
 
-
-
+//MARK: - Result Enums
 @frozen
 enum APIRequestResult<Success, Failure> where Failure : Error {
     

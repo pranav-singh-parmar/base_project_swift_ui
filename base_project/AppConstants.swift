@@ -15,21 +15,3 @@ struct AppInfo {
     static let appName = Bundle.main.appName
     static var appId = 0
 }
-
-enum BreakingBadURLs {
-    private static let baseURL = "https://www.breakingbadapi.com/"
-    
-    static func getAPIURL() -> String {
-        return baseURL + "api/"
-    }
-}
-
-//MARK: - AppURLs
-class AnimeURLs {
-    private static let baseURL = "https://anime-db.p.rapidapi.com/"
-    
-    static func getAPIURL() -> String {
-        return baseURL
-    }
-}
-

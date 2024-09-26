@@ -9,35 +9,42 @@ import Foundation
 
 //MARK: - APIEndpointsProtocol
 protocol APIEndpointsProtocol {
+    var endpoint: String { get }
+    
     func getURLString() -> String
 }
 
 //MARK: - BreakingBadEndpoints
-enum BreakingBadEndpoints: String, APIEndpointsProtocol {
-    func getURLString() -> String {
-        return BreakingBadURLs.getAPIURL() + self.rawValue
-    }
+enum BreakingBadEndpoints: APIEndpointsProtocol {
+    case characters,
+         character(withID: Int)
     
-    case characters = "characters"
-}
-
-//MARK: - BreakingBadEndpointsWithParameters
-enum BreakingBadEndpointsWithParameters: APIEndpointsProtocol {
-    func getURLString() -> String {
+    var endpoint: String {
         switch self {
-        case .characters(let id):
-            return BreakingBadURLs.getAPIURL() + "characters" + "/\(id)"
+        case .characters:
+            return "characters"
+        case .character(withID: let id):
+            return "characters" + "/\(id)"
         }
     }
     
-    case characters(Int)
+    func getURLString() -> String {
+        return ServerURLs.breakingBad().apiURL + self.endpoint
+    }
 }
 
 //MARK: - AnimeAPIEndpoints
-enum AnimeAPIEndpoints: String, APIEndpointsProtocol {
-    func getURLString() -> String {
-        return AnimeURLs.getAPIURL() + self.rawValue
+enum AnimeAPIEndpoints: APIEndpointsProtocol {
+    case anime
+    
+    var endpoint: String {
+        switch self {
+        case .anime:
+            return "anime"
+        }
     }
     
-    case anime = "anime"
+    func getURLString() -> String {
+        return ServerURLs.anime().apiURL + self.endpoint
+    }
 }

@@ -27,10 +27,7 @@ class AnimeListDataSourceIMPL: AnimeListDataSourceProtocol {
                                             forAnimeEndpoint: .anime,
                                             withQueryParameters: queryParameters)
             
-            let headers = ["X-RapidAPI-Key": "2b975442demsh14dd8bb5a692b60p17c702jsnc458dbd221ae",
-                           "X-RapidAPI-Host": "anime-db.p.rapidapi.com"] as JSONKeyValuePair
-            
-            urlRequest.addHeaders(headers)
+            urlRequest.setHeadersFor(.anime())
             
             switch await urlRequest.sendAPIRequest() {
             case .success(_, let data):

@@ -31,18 +31,6 @@ extension URLRequest {
     }
     
     init(ofHTTPMethod httpMethod: HTTPMethod,
-         forBreakingBadEndpointWithParameters breakingBadEndpoint: BreakingBadEndpointsWithParameters,
-         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
-        do {
-            try self.init(ofHTTPMethod: httpMethod,
-                          forEndpoint: breakingBadEndpoint,
-                          withQueryParameters: queryParameters)
-        } catch {
-            throw error
-        }
-    }
-    
-    init(ofHTTPMethod httpMethod: HTTPMethod,
          forAnimeEndpoint animeEndpoint: AnimeAPIEndpoints,
          withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
         do {
@@ -112,7 +100,7 @@ extension URLRequest {
         self.addHeader(withKey: "Authorisation", andValue: token)
     }
     
-    private mutating func setContentTypeHeader(to contentTypeEnum: ContentTypeEnum) {
+    private mutating func setContentTypeHeader(to contentTypeEnum: ParameterEncodingEnum) {
         let keyName = "Content-Type"
         switch contentTypeEnum {
         case .json:
@@ -125,14 +113,25 @@ extension URLRequest {
         }
     }
     
-    mutating func addHeaders(_ headers: [String: String]? = nil) {
-        //set headers
+    mutating func addHeaders(_ headers: [String: String]) {
+        headers.forEach { key, value in
+            self.addHeader(withKey: key, andValue: value)
+        }
+    }
+    
+    //create url enum type
+    mutating func setHeadersFor(_ serverURL: ServerURLs,
+                                requestingResponseIn requestMimeType: MimeTypeEnum = .json) {
+        self.requestResponse(in: requestMimeType)
         self.addHeader(withKey: "device", andValue: "iOS")
         
-        if let headers {
-            headers.forEach { key, value in
-                self.addHeader(withKey: key, andValue: value)
-            }
+        switch serverURL {
+        case .breakingBad(_):
+            break
+        case .anime(_):
+            let headers = ["X-RapidAPI-Key": "2b975442demsh14dd8bb5a692b60p17c702jsnc458dbd221ae",
+                           "X-RapidAPI-Host": "anime-db.p.rapidapi.com"] as [String: String]
+            self.addHeaders(headers)
         }
     }
     
@@ -141,10 +140,12 @@ extension URLRequest {
     }
     
     //MARK: - Parameters
-    mutating func addParameters(_ parameters: JSONKeyValuePair?, withFileModel fileModel: [FileModel]? = nil, as parameterEncoding: ParameterEncoding) {
+    mutating func addParameters(_ parameters: JSONKeyValuePair?,
+                                withFileModel fileModel: [FileModel]? = nil,
+                                as parameterEncoding: ParameterEncodingEnum) {
         let urlString = self.getURLString
         switch parameterEncoding {
-        case .jsonBody:
+        case .json:
             if let parameters {
                 do {
                     let jsonData = try JSONSerialization.data(withJSONObject: parameters, options: .prettyPrinted)
@@ -165,7 +166,7 @@ extension URLRequest {
                     print("error in \(urlString) with parameterEncoding \(parameterEncoding)")
                 }
             }
-        case .formData:
+        case .multipartFormData:
             //https://stackoverflow.com/questions/26162616/upload-image-with-parameters-in-swift
             //https://orjpap.github.io/swift/http/ios/urlsession/2021/04/26/Multipart-Form-Requests.html
             //https://bhuvaneswarikittappa.medium.com/upload-image-to-server-using-multipart-form-data-in-ios-swift-5c4eb6de26e2
