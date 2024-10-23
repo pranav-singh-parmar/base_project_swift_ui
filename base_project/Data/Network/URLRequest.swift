@@ -20,7 +20,7 @@ extension URLRequest {
     //MARK: - Initialisers
     init(ofHTTPMethod httpMethod: HTTPMethod,
          forBreakingBadEndpoint breakingBadEndpoint: BreakingBadEndpoints,
-         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
+         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws(URLRequestError) {
         do {
             try self.init(ofHTTPMethod: httpMethod,
                           forEndpoint: breakingBadEndpoint,
@@ -32,7 +32,7 @@ extension URLRequest {
     
     init(ofHTTPMethod httpMethod: HTTPMethod,
          forAnimeEndpoint animeEndpoint: AnimeAPIEndpoints,
-         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws {
+         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws(URLRequestError) {
         do {
             try self.init(ofHTTPMethod: httpMethod,
                           forEndpoint: animeEndpoint,
@@ -44,18 +44,29 @@ extension URLRequest {
     
     private init(ofHTTPMethod httpMethod: HTTPMethod,
                  forEndpoint appEndpoint: APIEndpointsProtocol,
-                 withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws { //throws(APIRequestError) to be in Swift6
-        let urlString = appEndpoint.getURLString()
+                 withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws(URLRequestError) {
+        do {
+            try self.init(ofHTTPMethod: httpMethod,
+                          urlString: appEndpoint.getURLString,
+                          withQueryParameters: queryParameters)
+        } catch {
+            throw error
+        }
+    }
+    
+    init(ofHTTPMethod httpMethod: HTTPMethod,
+         urlString: String,
+         withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws(URLRequestError) {
         guard let url = URL(string: urlString) else {
             //print(URLRequest.apiErrorTAG, "Cannot Initiate URL with String", urlString)
-            throw URLRequestError.invalidURL
+            throw .invalidURL
         }
         
         self.init(url: url)
         if let queryParameters {
             let urlComponents = getURLComponents(withQueryParameters: queryParameters)
             guard let url = urlComponents?.url else {
-                throw URLRequestError.invalidQueryParameters
+                throw .invalidQueryParameters
             }
             
             self.url = url
@@ -79,7 +90,7 @@ extension URLRequest {
         }
         if let component = urlComponents {
             //https://stackoverflow.com/questions/27723912/swift-get-request-with-parameters
-            //this code is added because some servers interpret '+' as space becuase of x-www-form-urlencoded specification
+            //this code is added because some servers interpret '+' as space because of x-www-form-urlencoded specification
             //so we have to percent escape it manually because URLComponents does not perform it
             //space is percent encoded as %20 and '+' is encoded as "%2B"
             urlComponents?.percentEncodedQuery = component.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
@@ -92,12 +103,18 @@ extension URLRequest {
         self.addValue(value, forHTTPHeaderField: key)
     }
     
-    mutating func requestResponse(in mimeType: MimeTypeEnum) {
-        self.addHeader(withKey: "Accept", andValue: mimeType.rawValue)
+    mutating func addHeaders(_ headers: [String: String]) {
+        headers.forEach { key, value in
+            self.addHeader(withKey: key, andValue: value)
+        }
     }
     
     mutating func addAuthorisationToken(_ token: String) {
         self.addHeader(withKey: "Authorisation", andValue: token)
+    }
+    
+    mutating func requestResponse(in mimeType: MimeTypeEnum) {
+        self.addHeader(withKey: "Accept", andValue: mimeType.rawValue)
     }
     
     private mutating func setContentTypeHeader(to contentTypeEnum: ParameterEncodingEnum) {
@@ -113,13 +130,6 @@ extension URLRequest {
         }
     }
     
-    mutating func addHeaders(_ headers: [String: String]) {
-        headers.forEach { key, value in
-            self.addHeader(withKey: key, andValue: value)
-        }
-    }
-    
-    //create url enum type
     mutating func setHeadersFor(_ serverURL: ServerURLs,
                                 requestingResponseIn requestMimeType: MimeTypeEnum = .json) {
         self.requestResponse(in: requestMimeType)
@@ -267,7 +277,6 @@ extension URLRequest {
             #if DEBUG
             do {
                 let jsonConvert = try JSONSerialization.jsonObject(with: data, options: [])
-                let json = jsonConvert as? [String: Any]
                 if let json = jsonConvert as? JSONKeyValuePair {
                     print(json.toJSONStringFormat() ?? "")
                 } else if let jsonArray = jsonConvert as? [JSONKeyValuePair] {
@@ -287,7 +296,7 @@ extension URLRequest {
                 printResponseDetailsTag(isStarted: false)
                 return .success(statusCode: response.statusCode, data)
             case 300...399:
-                return .failure(printAndReturnAPIRequestError(.redirectionalError(statusCode: response.statusCode)), data)
+                return .failure(printAndReturnAPIRequestError(.redirectionError(statusCode: response.statusCode)), data)
             case 400...499:
                 let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: response.statusCode)
                 return .failure(printAndReturnAPIRequestError(.clientError(clientErrorEnum)), data)
@@ -370,7 +379,7 @@ extension URLRequest {
                 printResponseDetailsTag(isStarted: false)
                 return .success(statusCode: response.statusCode, location)
             case 300...399:
-                return .failure(printAndReturnAPIRequestError(.redirectionalError(statusCode: response.statusCode)))
+                return .failure(printAndReturnAPIRequestError(.redirectionError(statusCode: response.statusCode)))
             case 400...499:
                 let clientErrorEnum = ClientErrorsEnum.getCorrespondingValue(forStatusCode: response.statusCode)
                 return .failure(printAndReturnAPIRequestError(.clientError(clientErrorEnum)))

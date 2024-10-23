@@ -50,7 +50,7 @@ extension Data {
                 case .badRequest, .paymentRequired, .forbidden, .notFound, .methodNotAllowed, .notAcceptable, .uriTooLong, .other:
                     errorMessage = json.getErrorMessage
                 }
-            case .informationalError(_), .redirectionalError(_), .serverError(_), .unknown(_):
+            case .informationalError(_), .redirectionError(_), .serverError(_), .unknown(_):
                 errorMessage = json.getErrorMessage
             default:
                 errorMessage = nil

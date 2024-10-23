@@ -45,7 +45,7 @@ enum APIRequestError: Error {
          missingMimeType,
          mimeTypeMismatched,
          informationalError(statusCode: Int),
-         redirectionalError(statusCode: Int),
+         redirectionError(statusCode: Int),
          clientError(ClientErrorsEnum),
          serverError(statusCode: Int),
          unknown(statusCode: Int)

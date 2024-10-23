@@ -11,7 +11,7 @@ import Foundation
 protocol APIEndpointsProtocol {
     var endpoint: String { get }
     
-    func getURLString() -> String
+    var getURLString: String { get }
 }
 
 //MARK: - BreakingBadEndpoints
@@ -28,7 +28,7 @@ enum BreakingBadEndpoints: APIEndpointsProtocol {
         }
     }
     
-    func getURLString() -> String {
+    var getURLString: String {
         return ServerURLs.breakingBad().apiURL + self.endpoint
     }
 }
@@ -44,7 +44,7 @@ enum AnimeAPIEndpoints: APIEndpointsProtocol {
         }
     }
     
-    func getURLString() -> String {
+    var getURLString: String {
         return ServerURLs.anime().apiURL + self.endpoint
     }
 }
