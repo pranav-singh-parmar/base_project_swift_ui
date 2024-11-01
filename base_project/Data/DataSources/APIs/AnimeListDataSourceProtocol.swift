@@ -41,7 +41,7 @@ class AnimeListDataSourceIMPL: AnimeListDataSourceProtocol {
                 return .failure(DataSourceError.apiRequestError(error, errorMessage))
             }
         } catch {
-            return .failure(DataSourceError.urlRequestError(error as! URLRequestError))
+            return .failure(DataSourceError.urlRequestError(error))
         }
     }
 }

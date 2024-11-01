@@ -26,12 +26,12 @@ struct AnimeCell: View {
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(animeModel?.title ?? "")
-                        .font(.bitterBody)
+                        .font(.bitterHeadline)
                         //.fontCustom(.SemiBold, size: 20)
                         .foregroundColor(.blackColor)
                     
                     Text(animeModel?.type ?? "")
-                        .font(.bitterBody)
+                        .font(.bitterSubheadline)
                         //.fontCustom(.Regular, size: 15)
                         .foregroundColor(.blackColor)
                 }

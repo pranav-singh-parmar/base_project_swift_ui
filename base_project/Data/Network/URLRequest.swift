@@ -8,12 +8,30 @@
 import Foundation
 import Network
 import Combine
+import os
 
 extension URLRequest {
-    
+    #if DEBUG
     private static let apiErrorTAG = "APIError:"
     
+    //private static let logs = Logger.init(subsystem: Bundle.main.getBundleIdentifier ?? "", category: "ApiServices")
+    //log related
+    private static var log: [String: String] = [:]
+    
+    func addLog(_ logs: Any...) {
+        var logString = (URLRequest.log[getURLString] ?? "") + "\n"
+        logString += logs.map { "\($0)" }.joined(separator: " ")
+        URLRequest.log[getURLString] = logString
+    }
+    
+    func printLogs() {
+        print(URLRequest.log[getURLString] ?? "")
+        URLRequest.log.removeValue(forKey: getURLString)
+    }
+    #endif
+    
     var getURLString: String {
+        //logs.info("URLGOT")
         return self.url?.absoluteString ?? "URL not set"
     }
     
@@ -58,7 +76,7 @@ extension URLRequest {
          urlString: String,
          withQueryParameters queryParameters: JSONKeyValuePair? = nil) throws(URLRequestError) {
         guard let url = URL(string: urlString) else {
-            //print(URLRequest.apiErrorTAG, "Cannot Initiate URL with String", urlString)
+            print(URLRequest.apiErrorTAG, "Cannot Initiate URL with String", urlString)
             throw .invalidURL
         }
         
@@ -70,15 +88,22 @@ extension URLRequest {
             }
             
             self.url = url
+            
+            #if DEBUG
             printRequestDetailsTag(isStarted: true)
-            print("Query Parameters:")
-            print(queryParameters.toJSONStringFormat() ?? "")
-            print("URL with Query Parameter:", self.getURLString)
+            addLog("Query Parameters:")
+            addLog(queryParameters.toJSONStringFormat() ?? "")
+            addLog("URL with Query Parameter:", self.getURLString)
+            #endif
         } else {
+            #if DEBUG
             printRequestDetailsTag(isStarted: true)
+            #endif
         }
         self.httpMethod = httpMethod.rawValue
-        print("HTTP Method:", self.httpMethod ?? "http method not assigned")
+        #if DEBUG
+        addLog("HTTP Method:", self.httpMethod ?? "http method not assigned")
+        #endif
     }
     
     //MARK: - URLComponents
@@ -145,7 +170,7 @@ extension URLRequest {
         }
     }
     
-    func getHeaderValueForKey(_ key: String) -> String? {
+    func getHeaderValue(forKey key: String) -> String? {
         return self.allHTTPHeaderFields?.first(where: { $0.key == key })?.value
     }
     
@@ -162,7 +187,7 @@ extension URLRequest {
                     self.httpBody = jsonData
                     self.setContentTypeHeader(to: .json)
                 } catch {
-                    print("error in \(urlString) with parameterEncoding \(parameterEncoding)", error.localizedDescription)
+                    addLog("error in \(urlString) with parameterEncoding \(parameterEncoding)", error.localizedDescription)
                 }
             }
         case .urlFormEncoded:
@@ -173,7 +198,9 @@ extension URLRequest {
                     self.httpBody = formEncodedData
                     self.setContentTypeHeader(to: .urlFormEncoded)
                 } else {
-                    print("error in \(urlString) with parameterEncoding \(parameterEncoding)")
+                    #if DEBUG
+                    addLog("error in \(urlString) with parameterEncoding \(parameterEncoding)")
+                    #endif
                 }
             }
         case .multipartFormData:
@@ -220,21 +247,28 @@ extension URLRequest {
             self.setContentTypeHeader(to: .multipartFormData(withBoundary: boundary, andCount: body.count))
         }
         
-        print("ParameterEncoding:", parameterEncoding)
         #if DEBUG
+        addLog("ParameterEncoding:", parameterEncoding)
         if let parameters {
-            print("Parameters:")
-            print(parameters.toJSONStringFormat() ?? "")
+            addLog("Parameters:")
+            addLog(parameters.toJSONStringFormat() ?? "")
         }
+        addLog("Body Data:", self.httpBody ?? Data())
         #endif
-        print("Body Data:", self.httpBody ?? Data())
     }
     
     //MARK: - Hit API
     func sendAPIRequest() async -> APIRequestResult<Data, APIRequestError> {
         
+        #if DEBUG
         printHeaders()
         printRequestDetailsTag(isStarted: false)
+        printLogs()
+        
+        defer {
+            printLogs()
+        }
+        #endif
         
         guard Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet else {
             return .failure(printAndReturnAPIRequestError(.internetNotConnected), nil)
@@ -244,32 +278,36 @@ extension URLRequest {
             let (data, response) = try await URLSession
                 .shared
                 .data(for: self)
-            
+            #if DEBUG
             printResponseDetailsTag(isStarted: true)
+            #endif
             
             guard let response = response as? HTTPURLResponse else {
                 return .failure(printAndReturnAPIRequestError(.invalidHTTPURLResponse), data)
             }
-            print("Status Code:", response.statusCode)
+            #if DEBUG
+            addLog("Status Code:", response.statusCode)
+            #endif
             
             guard let mimeType = response.mimeType else {
                 return .failure(printAndReturnAPIRequestError(.missingMimeType), data)
             }
             
-            if let accept = self.getHeaderValueForKey("Accept"),
+            if let accept = self.getHeaderValue(forKey: "Accept"),
                accept != mimeType {
-                print("Wrong MIME type!")
-                print("Accept Key sent in header:", accept)
-                print("MimeType received in Response:", mimeType)
-                
+                #if DEBUG
+                addLog("Wrong MIME type!")
+                addLog("Accept Key sent in header:", accept)
+                addLog("MimeType received in Response:", mimeType)
                 if let paragraphs = String(data: data, encoding: .utf8)?.components(separatedBy: .newlines) {
-                    print("Data received from API:")
+                    addLog("Data received from API:")
                     for line in paragraphs {
-                        print(line)
+                        addLog(line)
                     }
                 } else {
-                    print("Default Message: Not able to read data")
+                    addLog("Default Message: Not able to read data")
                 }
+                #endif
                 
                 return .failure(printAndReturnAPIRequestError(.mimeTypeMismatched), data)
             }
@@ -278,11 +316,11 @@ extension URLRequest {
             do {
                 let jsonConvert = try JSONSerialization.jsonObject(with: data, options: [])
                 if let json = jsonConvert as? JSONKeyValuePair {
-                    print(json.toJSONStringFormat() ?? "")
+                    addLog(json.toJSONStringFormat() ?? "")
                 } else if let jsonArray = jsonConvert as? [JSONKeyValuePair] {
-                    print(jsonArray.toJSONStringFormat() ?? "")
+                    addLog(jsonArray.toJSONStringFormat() ?? "")
                 } else {
-                    print("Response is neither Json, nor array of Json")
+                    addLog("Response is neither Json, nor array of Json")
                 }
             } catch {
                 print("Can't Fetch JSON Response:", error)
@@ -306,8 +344,10 @@ extension URLRequest {
                 return .failure(printAndReturnAPIRequestError(.unknown(statusCode: response.statusCode)), data)
             }
         } catch let error {
+            #if DEBUG
             printResponseDetailsTag(isStarted: true)
-            print("Error Localised Description:", error.localizedDescription)
+            addLog("Error Localised Description:", error.localizedDescription)
+            #endif
             let errorCode = (error as NSError).code
             switch errorCode {
             case NSURLErrorTimedOut:
@@ -338,8 +378,15 @@ extension URLRequest {
     
     func downloadFile() async -> DownloadRequestResult<URL, APIRequestError> {
         
+        #if DEBUG
         printHeaders()
         printRequestDetailsTag(isStarted: false)
+        printLogs()
+
+        defer {
+            printLogs()
+        }
+        #endif
         
         guard Singleton.sharedInstance.appEnvironmentObject.isConnectedToInternet else {
             return .failure(printAndReturnAPIRequestError(.internetNotConnected))
@@ -350,23 +397,27 @@ extension URLRequest {
                 .shared
                 .download(for: self)
             
+            #if DEBUG
             printResponseDetailsTag(isStarted: true)
+            #endif
             
             guard let response = response as? HTTPURLResponse else {
                 return .failure(printAndReturnAPIRequestError(.invalidHTTPURLResponse))
             }
-            print("Status Code:", response.statusCode)
+            #if DEBUG
+            addLog("Status Code:", response.statusCode)
+            #endif
             
             //            guard let mimeType = response.mimeType, mimeType == "application/json" else {
-            //                print("Wrong MIME type!", response.mimeType ?? "")
+            //                addLog("Wrong MIME type!", response.mimeType ?? "")
             //
             //                if let paragraphs = String(data: data, encoding: .utf8)?.components(separatedBy: .newlines) {
-            //                    print("Data received from API:")
+            //                    addLog("Data received from API:")
             //                    for line in paragraphs {
-            //                        print(line)
+            //                        addLog(line)
             //                    }
             //                } else {
-            //                    print("Default Message: Not able to read data")
+            //                    addLog("Default Message: Not able to read data")
             //                }
             //
             //                return .failure(printAndReturnAPIRequestError(.invalidMimeType), data)
@@ -389,8 +440,10 @@ extension URLRequest {
                 return .failure(printAndReturnAPIRequestError(.unknown(statusCode: response.statusCode)))
             }
         } catch let error {
+            #if DEBUG
             printResponseDetailsTag(isStarted: true)
             print("Error Localised Description:", error.localizedDescription)
+            #endif
             let errorCode = (error as NSError).code
             switch errorCode {
             case NSURLErrorTimedOut:
@@ -405,19 +458,23 @@ extension URLRequest {
         }
     }
     
-    //MARK: - Print Related Functions
-    private func printHeaders() {
-        print("Headers:")
-        print((self.allHTTPHeaderFields as JSONKeyValuePair?)?.toJSONStringFormat() ?? "")
-    }
-    
+    //MARK: - Print and return API error
     private func printAndReturnAPIRequestError(_ apiError: APIRequestError) -> APIRequestError {
+        #if DEBUG
         printApiError(apiError)
+        #endif
         return apiError
     }
     
+    #if DEBUG
+    //MARK: - Print Related Functions
+    private func printHeaders() {
+        addLog("Headers:")
+        addLog((self.allHTTPHeaderFields as JSONKeyValuePair?)?.toJSONStringFormat() ?? "")
+    }
+    
     private func printApiError(_ apiError: APIRequestError) {
-        print(URLRequest.apiErrorTAG, "\(apiError)")
+        addLog(URLRequest.apiErrorTAG, "\(apiError)")
         if apiError.localizedDescription != APIRequestError.internetNotConnected.localizedDescription {
             printResponseDetailsTag(isStarted: false)
         }
@@ -425,19 +482,20 @@ extension URLRequest {
     
     private func printRequestDetailsTag(isStarted: Bool) {
         if isStarted {
-            print("\n-----URL Request Details Starts-----")
-            print("URL:", self.getURLString)
+            addLog("-----URL Request Details Starts-----")
+            addLog("URL:", self.getURLString)
         } else {
-            print("-----URL Request Details Ends-----\n")
+            addLog("-----URL Request Details Ends-----\n")
         }
     }
     
     private func printResponseDetailsTag(isStarted: Bool) {
         if isStarted {
-            print("\n-----URL Response Details Starts-----")
-            print("URL:", self.getURLString)
+            addLog("-----URL Response Details Starts-----")
+            addLog("URL:", self.getURLString)
         } else {
-            print("-----URL Response Details Ends-----\n")
+            addLog("-----URL Response Details Ends-----\n")
         }
     }
+    #endif
 }
