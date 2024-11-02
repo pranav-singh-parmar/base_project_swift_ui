@@ -11,25 +11,29 @@ import Combine
 import os
 
 extension URLRequest {
+    //MARK: - Logs Related
     #if DEBUG
     private static let apiErrorTAG = "APIError:"
     
-    //private static let logs = Logger.init(subsystem: Bundle.main.getBundleIdentifier ?? "", category: "ApiServices")
+    private static let logger = Logger.init(subsystem: Bundle.main.getBundleIdentifier ?? "", category: "ApiServices")
     //log related
-    private static var log: [String: String] = [:]
+    private static var logs: [String: String] = [:]
     
     func addLog(_ logs: Any...) {
-        var logString = (URLRequest.log[getURLString] ?? "") + "\n"
+        var logString = (URLRequest.logs[getURLString] ?? "") + "\n"
         logString += logs.map { "\($0)" }.joined(separator: " ")
-        URLRequest.log[getURLString] = logString
+        URLRequest.logs[getURLString] = logString
     }
     
     func printLogs() {
-        print(URLRequest.log[getURLString] ?? "")
-        URLRequest.log.removeValue(forKey: getURLString)
+        let str = URLRequest.logs[getURLString] ?? ""
+        print(URLRequest.logs[getURLString] ?? "")
+        URLRequest.logger.log(level: .default, "\(str)")
+        URLRequest.logs.removeValue(forKey: getURLString)
     }
     #endif
     
+    //MARK: - Computed vars
     var getURLString: String {
         //logs.info("URLGOT")
         return self.url?.absoluteString ?? "URL not set"
